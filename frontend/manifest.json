@@ -1,0 +1,16 @@
+{
+  "name": "BankNews",
+  "short_name": "BankNews",
+  "description": "O'zbekiston valyuta kurslari, kripto va bozor tahlili",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1623",
+  "theme_color": "#0f1623",
+  "icons": [
+    {
+      "src": "https://sherzodbekhome.github.io/bankNews-app/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

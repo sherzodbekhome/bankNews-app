@@ -1,0 +1,1415 @@
+﻿<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="description" content="O'zbekiston banklari valyuta kurslari, kripto narxlari, kalkulyator va bozor tahlili.">
+<meta name="theme-color" content="#090e1c">
+<meta property="og:title" content="BankNews — Valyuta kurslari">
+<meta property="og:description" content="24 ta bank kursi, CBU, kripto, metallar — barchasi bir joyda.">
+<title>BankNews — Valyuta kurslari</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="dark">
+
+<!-- WEB TOPBAR: faqat Telegram tashqarisida ko'rinadi -->
+<div id="webTopbar" style="display:none;align-items:center;justify-content:space-between;padding:10px 16px;background:#0c1018;border-bottom:1px solid #1f2d42;position:sticky;top:0;z-index:200">
+  <a href="landing.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:#e2eaf8;font-weight:700;font-size:.95rem">
+    <span style="font-size:1.3rem">🏦</span> BankNews
+  </a>
+  <div class="flex-row">
+    <a href="https://t.me/BankNews_Official_bot" target="_blank" class="link-pill">🤖 Bot</a>
+    <a href="https://t.me/BankNews_official" target="_blank" class="link-pill">📢 Kanal</a>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-top">
+      <button id="uiBackBtn" onclick="_uiBack()" style="display:none;background:none;border:none;color:var(--text);cursor:pointer;padding:6px 10px;border-radius:10px;font-size:24px;line-height:1;margin-right:2px;flex-shrink:0">&#8249;</button>
+    <div class="brand">
+      <div class="brand-ico">
+        <svg viewBox="0 0 44 44" width="44" height="44" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="goldBg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#f6d96a"/>
+              <stop offset="50%" stop-color="#e9bb2e"/>
+              <stop offset="100%" stop-color="#c49018"/>
+            </linearGradient>
+            <linearGradient id="goldShine" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.26)"/>
+              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+            </linearGradient>
+            <filter id="bldShadow" x="-5%" y="-5%" width="110%" height="120%">
+              <feDropShadow dx="0" dy="1" stdDeviation="0.8" flood-color="#0d0600" flood-opacity="0.5"/>
+            </filter>
+          </defs>
+          <!-- Gold gradient background -->
+          <rect width="44" height="44" rx="11" fill="url(#goldBg)"/>
+          <!-- Top shine overlay -->
+          <rect width="44" height="22" rx="11" fill="url(#goldShine)"/>
+          <!-- Building -->
+          <g filter="url(#bldShadow)">
+            <!-- Pediment (roof triangle) -->
+            <polygon points="5,18 22,6 39,18" fill="#1a0d00"/>
+            <!-- Entablature beam -->
+            <rect x="4.5" y="17" width="35" height="2.8" rx="0.6" fill="#1a0d00"/>
+            <!-- 5 columns -->
+            <rect x="7"   y="19.8" width="4"   height="13" rx="1" fill="#1a0d00"/>
+            <rect x="13"  y="19.8" width="4"   height="13" rx="1" fill="#1a0d00"/>
+            <rect x="19"  y="19.8" width="4"   height="13" rx="1" fill="#1a0d00"/>
+            <rect x="25"  y="19.8" width="4"   height="13" rx="1" fill="#1a0d00"/>
+            <rect x="31"  y="19.8" width="4"   height="13" rx="1" fill="#1a0d00"/>
+            <!-- Stylobate steps -->
+            <rect x="4"   y="32.8" width="36" height="3"   rx="1" fill="#1a0d00"/>
+            <rect x="5.5" y="35.5" width="33" height="2"   rx="0.5" fill="#2a1600"/>
+          </g>
+          <!-- Dollar coin (centered on columns) -->
+          <circle cx="22" cy="26.3" r="5"   fill="url(#goldBg)"/>
+          <circle cx="22" cy="26.3" r="5"   fill="none" stroke="#1a0d00" stroke-width="1.4"/>
+          <circle cx="22" cy="26.3" r="3.2" fill="none" stroke="#1a0d00" stroke-width="0.5" opacity="0.4"/>
+          <text x="22" y="30" text-anchor="middle" font-size="7" font-weight="900" fill="#1a0d00" font-family="Georgia,serif">$</text>
+        </svg>
+      </div>
+      <div class="brand-txt">
+        <div class="name">BankNews</div>
+        <div class="sub" data-i="sub">Bozor Ma'lumotlari</div>
+      </div>
+    </div>
+    <div class="hdr-actions">
+      <div class="clock" id="clk">--:--</div>
+      <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Mavzu">
+  <svg id="themeSvg" viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+    <path d="M17 12.5A7 7 0 0 1 7.5 3a7 7 0 1 0 9.5 9.5z"/>
+  </svg>
+</button>
+      <button class="icon-btn" id="refBtn" onclick="loadAll()" title="Yangilash">↻</button>
+      <button class="auth-hdr-btn" id="authBtn" onclick="openAuthModal()" title="Profil">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- ── VALYUTA ── -->
+  <div class="sec on" id="s0">
+    <div id="v-load" class="loading"><div class="spinner"></div><div class="ltxt" data-i="loading">Yuklanmoqda...</div></div>
+    <div id="v-body" style="display:none">
+
+
+      <!-- ── CBU KURSLARI ── -->
+      <div id="cbuSection" style="padding:0 14px 6px">
+        <div class="row-between">
+          <div class="flex-row">
+            <div class="label-caps" data-i="cbu_rates">Markaziy Bank</div>
+            <div style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(232,192,74,0.12);color:var(--gold);border:1px solid rgba(232,192,74,0.22);letter-spacing:.4px">CBU</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;color:var(--green);letter-spacing:.5px">
+            <span style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);display:inline-block;animation:pulse 2s infinite"></span>LIVE
+          </div>
+        </div>
+        <div id="cbuList"></div>
+      </div>
+
+      <!-- ── FEATURE ROWS (AvtoPilot uslubi) ── -->
+      <div class="frow-list">
+        <div class="frow" onclick="document.getElementById('cbuSection').scrollIntoView({behavior:'smooth'})">
+          <div class="frow-ico" style="background:linear-gradient(135deg,#c4921e,#8a5e08)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>
+            </svg>
+          </div>
+          <div class="frow-txt">
+            <div class="frow-name">Markaziy Bank Kurslari</div>
+            <div class="frow-sub">CBU · Rasmiy valyuta kurslari</div>
+          </div>
+          <div class="frow-chev">›</div>
+        </div>
+        <div class="frow" onclick="openBankListPanel()">
+          <div class="frow-ico" style="background:linear-gradient(135deg,#1e6fd9,#1045a0)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11"/>
+            </svg>
+          </div>
+          <div class="frow-txt">
+            <div class="frow-name">Tijorat banklari</div>
+            <div class="frow-sub">24 ta bank · Sotib olish & Sotish</div>
+          </div>
+          <div class="frow-chev">›</div>
+        </div>
+        <div class="frow" onclick="openCryptoPanel()">
+          <div class="frow-ico" style="background:linear-gradient(135deg,#26a17b,#1a7a5e)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9h1.5a1.5 1.5 0 0 1 0 3H9m0-3v6m0-3h3"/></svg>
+          </div>
+          <div class="frow-txt">
+            <div class="frow-name">P2P & Kripto</div>
+            <div class="frow-sub">Binance P2P · USDT/UZS</div>
+          </div>
+          <div class="frow-chev">›</div>
+        </div>
+        <div class="frow" onclick="openMetalsPanel()">
+          <div class="frow-ico" style="background:linear-gradient(135deg,#d4a843,#a07820)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 6v2m0 8v2m-4-5h8"/></svg>
+          </div>
+          <div class="frow-txt">
+            <div class="frow-name">Qimmatbaho metallar</div>
+            <div class="frow-sub">Oltin, kumush, platina</div>
+          </div>
+          <div class="frow-chev">›</div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+  <!-- ── KRIPTO (placeholder — tarkib cryptoPanel da) ── -->
+  <div class="sec" id="s1"></div>
+
+  <!-- ── KALKUL ── -->
+  <div class="sec" id="s2">
+
+    <!-- Hero header -->
+    <div class="calc-hero">
+      <div class="calc-hero-row">
+        <div class="calc-hero-title">Hisob-kitob</div>
+        <div class="calc-hero-badge" id="calcModeBadge">Valyuta</div>
+      </div>
+      <!-- Mode sub-tabs -->
+      <div class="ctabs">
+        <button class="ctab on" onclick="setCalcMode('valyuta')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg> Valyuta
+        </button>
+        <button class="ctab" onclick="setCalcMode('kredit')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> Kredit
+        </button>
+        <button class="ctab" onclick="setCalcMode('depozit')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9c0 4-3 7-7 7s-7-3-7-7V5h14v4z"/><line x1="12" y1="16" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/></svg> Depozit
+        </button>
+        <button class="ctab" onclick="setCalcMode('stavkadep')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Depozit ↗
+        </button>
+        <button class="ctab" onclick="setCalcMode('stavkakred')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="14" x2="10" y2="14"/></svg> Kredit ↘
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Valyuta kalkulyatori ── -->
+    <div id="calc-valyuta">
+      <div class="vcalc-wrap">
+
+        <!-- FROM bloki -->
+        <div class="vcalc-from">
+          <div class="vcalc-lbl">Manba</div>
+          <!-- Currency picker + amount in one block -->
+          <div class="vcalc-picker-row">
+            <div class="vcalc-cur-pick" onclick="openCpick('fc')">
+              <div class="vcalc-cur-ico" id="fcIco"><img src="https://flagcdn.com/h40/us.png" width="32" height="22" style="border-radius:4px;object-fit:cover;display:block" loading="lazy"></div>
+              <div class="vcalc-cur-code" id="fcVal">USD</div>
+              <div class="vcalc-cur-arr">▾</div>
+            </div>
+          </div>
+          <input class="vcalc-amount" type="number" id="amt" value="100" min="0"
+            inputmode="decimal" placeholder="0" oninput="doCalc()">
+          <div class="vcalc-qrow">
+            <button class="vcalc-qb" onclick="qa(1)">1</button>
+            <button class="vcalc-qb" onclick="qa(10)">10</button>
+            <button class="vcalc-qb" onclick="qa(100)">100</button>
+            <button class="vcalc-qb" onclick="qa(1000)">1K</button>
+            <button class="vcalc-qb" onclick="qa(10000)">10K</button>
+            <button class="vcalc-qb" onclick="qa(1000000)">1M</button>
+          </div>
+        </div>
+
+        <!-- Swap button -->
+        <div class="vcalc-swap-row">
+          <div class="vcalc-line"></div>
+          <button class="vcalc-swpbtn" onclick="doSwap()" title="Almashtirish">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+          </button>
+          <div class="vcalc-line"></div>
+        </div>
+
+        <!-- TO / Result bloki -->
+        <div class="vcalc-to">
+          <div class="vcalc-lbl">Natija</div>
+          <div class="vcalc-picker-row">
+            <div class="vcalc-cur-pick" onclick="openCpick('tc')">
+              <div class="vcalc-cur-ico" id="tcIco"><img src="https://flagcdn.com/h40/uz.png" width="32" height="22" style="border-radius:4px;object-fit:cover;display:block" loading="lazy"></div>
+              <div class="vcalc-cur-code" id="tcVal">UZS</div>
+              <div class="vcalc-cur-arr">▾</div>
+            </div>
+            <button onclick="copyResult()" style="margin-left:auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text3);font-size:10px;padding:6px 10px;cursor:pointer;font-weight:700;font-family:'Inter',sans-serif;transition:all .14s;display:flex;align-items:center;gap:5px" title="Nusxalash"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Nusxa</button>
+          </div>
+          <div class="vcalc-from-val" id="resfrom">—</div>
+          <div class="vcalc-result" id="resto">—</div>
+          <div class="vcalc-rate" id="resrate"></div>
+        </div>
+
+        <!-- hidden selects for JS compat -->
+        <select id="fc" style="display:none" onchange="doCalc()">
+          <option value="USD" selected>USD</option><option value="EUR">EUR</option>
+          <option value="RUB">RUB</option><option value="GBP">GBP</option>
+          <option value="CNY">CNY</option><option value="KZT">KZT</option>
+          <option value="UZS">UZS</option><option value="BTC">BTC</option>
+          <option value="ETH">ETH</option><option value="USDT">USDT</option>
+          <option value="TON">TON</option><option value="SOL">SOL</option>
+          <option value="XAU">XAU</option>
+        </select>
+        <select id="tc" style="display:none" onchange="doCalc()">
+          <option value="UZS" selected>UZS</option><option value="USD">USD</option>
+          <option value="EUR">EUR</option><option value="RUB">RUB</option>
+          <option value="GBP">GBP</option><option value="CNY">CNY</option>
+          <option value="KZT">KZT</option><option value="BTC">BTC</option>
+          <option value="ETH">ETH</option><option value="USDT">USDT</option>
+          <option value="TON">TON</option><option value="SOL">SOL</option>
+          <option value="XAU">XAU</option>
+        </select>
+        <!-- dummy rescard for JS compat -->
+        <div id="rescard" style="display:none"></div>
+
+      </div>
+    </div>
+
+    <!-- ── Kredit kalkulyatori ── -->
+    <div id="calc-kredit" style="display:none">
+      <div class="kf">
+          <div class="flbl">Kredit Summasi (so'm)</div>
+          <input class="kinput" type="number" id="kAmt" value="50000000" placeholder="50 000 000" oninput="doKredit()">
+          <div class="kqrow">
+            <button class="kqb" onclick="kqa('kAmt',10000000)">10M</button>
+            <button class="kqb" onclick="kqa('kAmt',20000000)">20M</button>
+            <button class="kqb" onclick="kqa('kAmt',50000000)">50M</button>
+            <button class="kqb" onclick="kqa('kAmt',100000000)">100M</button>
+          </div>
+          <div class="flbl" class="mt-12">Muddat (oy)</div>
+          <input class="kinput" type="number" id="kMonth" placeholder="36" value="36" oninput="doKredit()">
+          <div class="kqrow">
+            <button class="kqb" onclick="kqa('kMonth',12)">12 oy</button>
+            <button class="kqb" onclick="kqa('kMonth',24)">24 oy</button>
+            <button class="kqb" onclick="kqa('kMonth',36)">36 oy</button>
+            <button class="kqb" onclick="kqa('kMonth',60)">60 oy</button>
+          </div>
+          <div class="flbl" class="mt-12">Yillik Foiz (%)</div>
+          <input class="kinput" type="number" id="kRate" placeholder="24" value="24" oninput="doKredit()">
+          <div class="kqrow">
+            <button class="kqb" onclick="kqa('kRate',18)">18%</button>
+            <button class="kqb" onclick="kqa('kRate',24)">24%</button>
+            <button class="kqb" onclick="kqa('kRate',28)">28%</button>
+            <button class="kqb" onclick="kqa('kRate',32)">32%</button>
+          </div>
+          <div class="kres" id="kRes">
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Oylik to'lov</span><span class="kv" id="kMonthly">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Jami to'lov</span><span class="kv" id="kTotal">—</span></div>
+            <div class="krow2"><span class="kk" class="text-red"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Jami foiz</span><span class="kv" id="kInterest" class="text-red">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Foiz ulushi</span><span class="kv" id="kPct">—</span></div>
+            <button class="kqb" onclick="toggleSchedule()" id="schedBtn" style="width:100%;margin-top:10px;padding:8px;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>To'lov jadvali ▼</button>
+            <div id="kSchedule" style="display:none;margin-top:8px;overflow-x:auto"></div>
+          </div>
+      </div>
+    </div>
+
+    <!-- ── Depozit kalkulyatori ── -->
+    <div id="calc-depozit" style="display:none">
+      <div class="kf">
+          <div class="flbl">Boshlang'ich Summa (so'm)</div>
+          <input class="kinput" type="number" id="dAmt" value="10000000" placeholder="10 000 000" oninput="doDepozit()">
+          <div class="kqrow">
+            <button class="kqb" onclick="kqa('dAmt',5000000)">5M</button>
+            <button class="kqb" onclick="kqa('dAmt',10000000)">10M</button>
+            <button class="kqb" onclick="kqa('dAmt',50000000)">50M</button>
+            <button class="kqb" onclick="kqa('dAmt',100000000)">100M</button>
+          </div>
+          <div class="flbl" class="mt-12">Muddat (oy)</div>
+          <input class="kinput" type="number" id="dMonth" placeholder="12" value="12" oninput="doDepozit()">
+          <div class="kqrow">
+            <button class="kqb" onclick="kqa('dMonth',3)">3 oy</button>
+            <button class="kqb" onclick="kqa('dMonth',6)">6 oy</button>
+            <button class="kqb" onclick="kqa('dMonth',12)">12 oy</button>
+            <button class="kqb" onclick="kqa('dMonth',24)">24 oy</button>
+          </div>
+          <div class="flbl" class="mt-12">Yillik Foiz (%)</div>
+          <input class="kinput" type="number" id="dRate" placeholder="22" value="22" oninput="doDepozit()">
+          <div class="kqrow">
+            <button class="kqb" onclick="kqa('dRate',18)">18%</button>
+            <button class="kqb" onclick="kqa('dRate',22)">22%</button>
+            <button class="kqb" onclick="kqa('dRate',25)">25%</button>
+            <button class="kqb" onclick="kqa('dRate',28)">28%</button>
+          </div>
+          <div class="kres" id="dRes">
+            <div class="krow2"><span class="kk" class="text-green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Foyda</span><span class="kv" id="dProfit" class="text-green">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Jami summa</span><span class="kv" id="dTotal">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Samarali foiz</span><span class="kv" id="dEff">—</span></div>
+          </div>
+      </div>
+    </div>
+
+    <!-- ── Maosh kalkulyatori ── -->
+    <div id="calc-maosh" style="display:none">
+      <div class="ccard">
+        <div class="ch"><div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>Maosh Kalkulyatori</div></div>
+        <div class="kf">
+          <div class="flbl">Oylik Maosh</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <input class="kinput" type="number" id="mAmt" placeholder="5 000 000" oninput="doMaosh()" style="flex:1;min-width:0">
+            <select class="csel" id="mCur" onchange="doMaosh()" class="flex-auto">
+              <option value="UZS">🇺🇿 UZS</option>
+              <option value="USD">🇺🇸 USD</option>
+              <option value="EUR">🇪🇺 EUR</option>
+              <option value="RUB">🇷🇺 RUB</option>
+            </select>
+          </div>
+          <div class="kqrow">
+            <button class="kqb" onclick="kqa('mAmt',1000000)">1M</button>
+            <button class="kqb" onclick="kqa('mAmt',3000000)">3M</button>
+            <button class="kqb" onclick="kqa('mAmt',5000000)">5M</button>
+            <button class="kqb" onclick="kqa('mAmt',10000000)">10M</button>
+          </div>
+          <div id="mWarn" style="display:none;align-items:center;gap:6px;background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.25);border-radius:9px;padding:8px 11px;margin-top:8px;font-size:11px;color:var(--red)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Minimal ish haqidan (980 000 so'm) past!</div>
+          <div class="kres" id="mRes">
+            <div class="krow2"><span class="kk" class="text-green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Qo'lga tegadigan (netto)</span><span class="kv" id="mNetto" class="text-green">—</span></div>
+            <div class="krow2"><span class="kk" class="text-red"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22h18M3 10l9-8 9 8M9 22V12h6v10"/></svg>Daromad solig'i (12%)</span><span class="kv" id="mTax" class="text-red">—</span></div>
+            <div class="krow2"><span class="kk" class="text-red"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>INPS (8%)</span><span class="kv" id="mInps" class="text-red">—</span></div>
+            <div class="krow2" style="border-top:1px dashed var(--border);padding-top:8px;margin-top:4px"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Brutto (kiritilgan)</span><span class="kv" id="mBrutto">—</span></div>
+            <div id="mCurrRows"></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Yillik</span><span class="kv" id="mYearly">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Kunlik (ish kuni)</span><span class="kv" id="mDaily">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Bank taqqoslash ── -->
+    <div id="calc-bankcomp" style="display:none">
+      <div class="ccard">
+        <div class="ch"><div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 9l9-6 9 6"/><line x1="9" y1="21" x2="9" y2="13"/><line x1="15" y1="21" x2="15" y2="13"/></svg>Bank Taqqoslash</div></div>
+        <div class="kf">
+          <div class="flbl">Siz nima qilmoqchisiz?</div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <button id="bc-sell-btn" class="kqb on" style="flex:1;padding:10px;display:flex;align-items:center;justify-content:center;gap:5px" onclick="setBcDir('sell',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m0 14l-7-7m7 7l7-7"/></svg>USD Sotaman</button>
+            <button id="bc-buy-btn" class="kqb" style="flex:1;padding:10px;display:flex;align-items:center;justify-content:center;gap:5px" onclick="setBcDir('buy',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m0-14l-7 7m7-7l7 7"/></svg>USD Sotib olaman</button>
+          </div>
+          <div class="flbl">Miqdor va valyuta</div>
+          <div class="flex-row">
+            <input class="kinput" type="number" id="bcAmt" placeholder="10 000" oninput="doBankComp()" class="flex-1">
+            <select class="csel" id="bcCur" onchange="doBankComp()" class="flex-auto">
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="RUB">RUB</option>
+            </select>
+          </div>
+          <div class="kqrow">
+            <button class="kqb" onclick="bcqa(1000)">1K</button>
+            <button class="kqb" onclick="bcqa(5000)">5K</button>
+            <button class="kqb" onclick="bcqa(10000)">10K</button>
+            <button class="kqb" onclick="bcqa(50000)">50K</button>
+          </div>
+          <div id="bcResult" class="mt-12"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Maqsad kalkulyatori ── -->
+    <div id="calc-maqsad" style="display:none">
+      <div class="ccard">
+        <div class="ch"><div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Maqsad Rejalovchi</div></div>
+        <div class="kf">
+          <div class="flbl">Maqsad (Miqdor)</div>
+          <div class="flex-row">
+            <input class="kinput" type="number" id="gGoal" placeholder="20 000" oninput="doGoal()" class="flex-1">
+            <select class="csel" id="gCur" onchange="doGoal()" class="flex-auto">
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="UZS">UZS</option>
+            </select>
+          </div>
+          <div class="flbl" class="mt-12">Hozirda bor (xuddi shu valyutada)</div>
+          <input class="kinput" type="number" id="gNow" placeholder="5 000" oninput="doGoal()">
+          <div class="flbl" class="mt-12">Oylik tejash (so'mda)</div>
+          <input class="kinput" type="number" id="gMonth" placeholder="1 000 000" oninput="doGoal()">
+          <div class="kqrow">
+            <button class="kqb" onclick="kqa('gMonth',500000)">500K</button>
+            <button class="kqb" onclick="kqa('gMonth',1000000)">1M</button>
+            <button class="kqb" onclick="kqa('gMonth',2000000)">2M</button>
+            <button class="kqb" onclick="kqa('gMonth',5000000)">5M</button>
+          </div>
+          <div class="kres" id="gRes">
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Taxminiy muddat</span><span class="kv" id="gMonths" style="color:var(--gold2)">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Tugash sanasi</span><span class="kv" id="gDate">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Oylik tejash (valyutada)</span><span class="kv" id="gMonthCur">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>Qoldi</span><span class="kv" id="gRemain">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Foyda/Zarar kalkulyatori ── -->
+    <div id="calc-foyda" style="display:none">
+      <div class="ccard">
+        <div class="ch"><div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Foyda / Zarar</div></div>
+        <div class="kf">
+          <div class="flbl">Sotib olish</div>
+          <div class="flex-row">
+            <input class="kinput" type="number" id="plAmt" placeholder="1 000" oninput="doProfit()" class="flex-1">
+            <select class="csel" id="plCur" onchange="plCurChange()" class="flex-auto">
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="BTC">BTC</option>
+              <option value="ETH">ETH</option>
+              <option value="XAU">XAU</option>
+            </select>
+          </div>
+          <div class="flbl" class="mt-12">Sotib olish kursi (so'mda)</div>
+          <input class="kinput" type="number" id="plBuyRate" placeholder="11 900" oninput="doProfit()">
+          <div class="flbl" class="mt-12">Hozirgi kurs (so'mda)</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="kinput" type="number" id="plNowRate" placeholder="12 150" oninput="doProfit()" class="flex-1">
+            <button class="kqb" onclick="plFillCurrent()" style="white-space:nowrap">↻ Hozirgi</button>
+          </div>
+          <div class="kres" id="plRes">
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>Boshlang'ich summa</span><span class="kv" id="plStart">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Hozirgi qiymat</span><span class="kv" id="plNow">—</span></div>
+            <div class="krow2" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px">
+              <span class="kk" id="plPnlLbl">Foyda</span>
+              <span class="kv" id="plPnl">—</span>
+            </div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Foizda</span><span class="kv" id="plPct">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>1 birlik o'zgarishi</span><span class="kv" id="plPer">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- ── Depozit solishtirish ── -->
+    <div id="calc-stavkadep" style="display:none">
+      <div class="stavka-hero">
+        <div class="stavka-hero-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <div>
+          <div class="stavka-hero-title">Depozit solishtirish</div>
+          <div class="stavka-hero-sub">Qaysi bankda ko'proq foyda olasiz?</div>
+        </div>
+      </div>
+      <div class="kf">
+        <div class="flbl">Boshlang'ich summa (so'm)</div>
+        <input class="kinput" type="number" id="sdAmt" value="10000000" oninput="doStavkaDep()">
+        <div class="kqrow">
+          <button class="kqb" onclick="kqa('sdAmt',5000000)">5M</button>
+          <button class="kqb" onclick="kqa('sdAmt',10000000)">10M</button>
+          <button class="kqb" onclick="kqa('sdAmt',50000000)">50M</button>
+          <button class="kqb" onclick="kqa('sdAmt',100000000)">100M</button>
+        </div>
+        <div class="flbl">Muddat (oy)</div>
+        <input class="kinput" type="number" id="sdMonth" value="12" oninput="doStavkaDep()">
+        <div class="kqrow">
+          <button class="kqb" onclick="kqa('sdMonth',3)">3 oy</button>
+          <button class="kqb" onclick="kqa('sdMonth',6)">6 oy</button>
+          <button class="kqb" onclick="kqa('sdMonth',12)">12 oy</button>
+          <button class="kqb" onclick="kqa('sdMonth',24)">24 oy</button>
+        </div>
+      </div>
+      <div id="sdResult"></div>
+      <div class="stavka-note">* Ma'lumotlar taxminiy. Bankka murojaat qiling.</div>
+    </div>
+
+    <!-- ── Kredit solishtirish ── -->
+    <div id="calc-stavkakred" style="display:none">
+      <div class="stavka-hero">
+        <div class="stavka-hero-icon" style="background:linear-gradient(135deg,rgba(255,71,87,.2),rgba(255,71,87,.08));color:var(--red)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="14" x2="10" y2="14"/></svg>
+        </div>
+        <div>
+          <div class="stavka-hero-title">Kredit solishtirish</div>
+          <div class="stavka-hero-sub">Qaysi bankda oylik to'lov kam?</div>
+        </div>
+      </div>
+      <div class="kf">
+        <div class="flbl">Kredit summasi (so'm)</div>
+        <input class="kinput" type="number" id="skAmt" value="50000000" oninput="doStavkaKred()">
+        <div class="kqrow">
+          <button class="kqb" onclick="kqa('skAmt',10000000)">10M</button>
+          <button class="kqb" onclick="kqa('skAmt',25000000)">25M</button>
+          <button class="kqb" onclick="kqa('skAmt',50000000)">50M</button>
+          <button class="kqb" onclick="kqa('skAmt',100000000)">100M</button>
+        </div>
+        <div class="flbl">Muddat (oy)</div>
+        <input class="kinput" type="number" id="skMonth" value="36" oninput="doStavkaKred()">
+        <div class="kqrow">
+          <button class="kqb" onclick="kqa('skMonth',12)">12 oy</button>
+          <button class="kqb" onclick="kqa('skMonth',24)">24 oy</button>
+          <button class="kqb" onclick="kqa('skMonth',36)">36 oy</button>
+          <button class="kqb" onclick="kqa('skMonth',60)">60 oy</button>
+        </div>
+      </div>
+      <div id="skResult"></div>
+      <div class="stavka-note">* Ma'lumotlar taxminiy. Bankka murojaat qiling.</div>
+    </div>
+
+  </div>
+
+  <!-- ── PORTFEL ── -->
+  <div class="sec" id="s4">
+    <div class="card">
+      <div class="ch">
+        <div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>Mening Portfelim</div>
+        <div id="portRefreshBadge" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3)"></div>
+      </div>
+      <div id="portTotalWrap"></div>
+      <div id="portChartWrap" style="display:none">
+        <div class="port-chart-wrap">
+          <div class="port-chart-canvas-wrap">
+            <canvas id="portChart" width="130" height="130"></canvas>
+            <div class="port-chart-center">
+              <div class="port-chart-center-pct" id="portChartPct">—</div>
+              <div class="port-chart-center-lbl" id="portChartLbl">eng ko'p</div>
+            </div>
+          </div>
+          <div class="port-legend" id="portLegend"></div>
+        </div>
+      </div>
+      <div id="portList"></div>
+    </div>
+    <button class="port-add" onclick="togglePortForm()">＋ Aktiv qo'shish</button>
+    <div class="port-form" id="portForm" style="display:none">
+      <div class="flbl">Valyuta / Aktiv</div>
+      <div class="port-form-row">
+        <select class="csel port-form-row" id="pSym" style="width:100%">
+          <option value="USD">🇺🇸 USD — Dollar</option>
+          <option value="EUR">🇪🇺 EUR — Euro</option>
+          <option value="RUB">🇷🇺 RUB — Rubl</option>
+          <option value="GBP">🇬🇧 GBP — Funt</option>
+          <option value="CNY">🇨🇳 CNY — Yuan</option>
+          <option value="KZT">🇰🇿 KZT — Tenge</option>
+          <option value="BTC">₿ BTC — Bitcoin</option>
+          <option value="ETH">⟠ ETH — Ethereum</option>
+          <option value="USDT">💵 USDT — Tether</option>
+          <option value="TON">💎 TON</option>
+          <option value="SOL">◎ SOL — Solana</option>
+          <option value="XAU">🥇 XAU — Oltin</option>
+        </select>
+      </div>
+      <div class="flbl">Miqdor</div>
+      <input class="kinput" type="number" id="pAmt" placeholder="100" min="0" oninput="previewPortAsset()">
+      <div class="flbl">Sotib olish kursi (so'mda) — <span style="color:var(--text3);text-transform:none;letter-spacing:0">ixtiyoriy, foyda/zarar uchun</span></div>
+      <input class="kinput" type="number" id="pBuy" placeholder="Masalan: 11900" min="0">
+      <div id="pPreview" style="font-size:11px;color:var(--text3);margin-top:8px;font-family:'JetBrains Mono',monospace"></div>
+      <button class="port-save" onclick="savePortAsset()" style="display:flex;align-items:center;justify-content:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Saqlash</button>
+      <button style="width:100%;background:none;border:none;color:var(--text3);padding:8px;cursor:pointer;font-size:12px;margin-top:4px" onclick="togglePortForm()">Bekor qilish</button>
+    </div>
+    <div class="sub-card">
+      <div class="sub-title">💡 Portfel haqida</div>
+      <div class="sub-desc">Ma'lumotlar faqat qurilmangizda saqlanadi. Hisob kerak emas. Narxlar real vaqtda yangilanadi.</div>
+    </div>
+  </div>
+
+  <!-- ── METALLAR (placeholder — tarkib metalsPanel da) ── -->
+  <div class="sec" id="s3"></div>
+
+  <!-- ── PROFIL / ADMIN ── -->
+  <div class="sec" id="s5">
+    <div id="profileRoot"></div>
+  </div>
+
+  <!-- ── AI TAHLIL ── DOM[6] -->
+  <div class="sec" id="s-ai">
+    <div id="aiRoot"></div>
+  </div>
+
+  <!-- ── SOZLAMALAR ── DOM[7] -->
+  <div class="sec" id="s-soz">
+
+    <!-- Page title -->
+    <div style="padding:20px 18px 10px">
+      <div style="font-size:26px;font-weight:900;color:#ffb300;letter-spacing:-.3px" data-i="soz_title">Sozlamalar</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:2px" data-i="soz_sub">Til, korinish va bildirishnomalar</div>
+    </div>
+
+    <div class="soz-body">
+
+      <!-- Premium CTA — AvtoPilot uslubi -->
+      <div class="soz-section">
+        <div class="soz-prem-cta" onclick="goTab(8)">
+          <div class="soz-prem-cta-ico">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 19h20M2 19l3-9 5 4 2-7 2 7 5-4 3 9"/>
+              <circle cx="12" cy="5" r="1" fill="rgba(255,255,255,.95)" stroke="none"/>
+              <circle cx="4.5" cy="10" r="1" fill="rgba(255,255,255,.95)" stroke="none"/>
+              <circle cx="19.5" cy="10" r="1" fill="rgba(255,255,255,.95)" stroke="none"/>
+            </svg>
+          </div>
+          <div class="soz-prem-cta-txt">
+            <div class="soz-prem-cta-title" data-i="soz_premium">Premium ga otish</div>
+            <div class="soz-prem-cta-sub" data-i="soz_premium_sub">Cheksiz funksiyalar va AI tahlil</div>
+          </div>
+          <div class="soz-prem-cta-arr">›</div>
+        </div>
+      </div>
+
+      <!-- Hisob (yuqorida, muhim) -->
+      <div class="soz-section">
+        <div class="soz-cat">
+          <div class="soz-cat-line" style="background:var(--purple)"></div>
+          <div class="soz-cat-lbl" data-i="soz_account">Hisob</div>
+        </div>
+        <div class="soz-profile-card" onclick="goTab(5)">
+          <div class="soz-profile-avatar">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+          </div>
+          <div class="soz-profile-info">
+            <div class="soz-profile-name" id="sozProfileName">Tizimga kiring</div>
+            <div class="soz-profile-sub" id="sozProfileSub">Profilingizni ko'rish va boshqarish</div>
+          </div>
+          <div class="soz-profile-chev">›</div>
+        </div>
+      </div>
+
+      <!-- Til -->
+      <div class="soz-section">
+        <div class="soz-cat">
+          <div class="soz-cat-line" style="background:var(--green)"></div>
+          <div class="soz-cat-lbl" data-i="soz_lang_lbl">Interfeys tili</div>
+        </div>
+        <div class="soz-card">
+          <div class="soz-row" onclick="openLangSheet()">
+            <div class="soz-row-l">
+              <div class="soz-row-ico" style="background:linear-gradient(135deg,rgba(0,214,143,.18),rgba(0,214,143,.06));color:var(--green)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/>
+                  <path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/>
+                </svg>
+              </div>
+              <div>
+                <div class="soz-row-name">Ilova tili</div>
+                <div class="soz-row-sub" id="sozLangLbl">O'zbekcha</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span id="sozLangVal" style="font-size:13px;color:var(--text3)">O'zbekcha</span>
+              <div class="soz-chev">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ko'rinish -->
+      <div class="soz-section">
+        <div class="soz-cat">
+          <div class="soz-cat-line" style="background:var(--gold)"></div>
+          <div class="soz-cat-lbl" data-i="soz_theme_sec">Korinish</div>
+        </div>
+        <div class="soz-card">
+          <div class="soz-row" onclick="openThemeSheet()">
+            <div class="soz-row-l">
+              <div class="soz-row-ico" style="background:linear-gradient(135deg,rgba(124,92,252,.2),rgba(124,92,252,.08));color:var(--purple2)" id="sozThemeIco"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+              <div>
+                <div class="soz-row-name">Ilova mavzusi</div>
+                <div class="soz-row-sub" id="sozThemeLbl">Qorong'i</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span id="sozThemeVal" style="font-size:13px;color:var(--text3)">Qorong'i</span>
+              <div class="soz-chev">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bildirishnomalar -->
+      <div class="soz-section">
+        <div class="soz-cat">
+          <div class="soz-cat-line" style="background:var(--red)"></div>
+          <div class="soz-cat-lbl" data-i="soz_notif">Bildirishnomalar</div>
+        </div>
+        <div class="soz-card">
+          <a class="soz-row" href="https://t.me/BankNews_Official_bot?start=subscribe" target="_blank" class="no-underline">
+            <div class="soz-row-l">
+              <div class="soz-row-ico" style="background:linear-gradient(135deg,rgba(0,214,143,.2),rgba(0,214,143,.06));color:var(--green)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/><path d="M9 7h6M9 11h6"/>
+                </svg>
+              </div>
+              <div>
+                <div class="soz-row-name" data-i="soz_daily">Kunlik kurs xabarlari</div>
+                <div class="soz-row-sub">Har kuni 09:45 va 18:00 da</div>
+              </div>
+            </div>
+            <div class="soz-chev">›</div>
+          </a>
+          <div class="soz-row" onclick="goTab(5)">
+            <div class="soz-row-l">
+              <div class="soz-row-ico" style="background:linear-gradient(135deg,rgba(255,71,87,.2),rgba(255,71,87,.06));color:var(--red)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+              </div>
+              <div>
+                <div class="soz-row-name" data-i="soz_alerts">Narx ogohlantirishlari</div>
+                <div class="soz-row-sub">Chegara bo'lganda darhol xabar</div>
+              </div>
+            </div>
+            <div class="soz-chev">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ilova haqida -->
+      <div class="soz-section">
+        <div class="soz-cat">
+          <div class="soz-cat-line" style="background:var(--text3)"></div>
+          <div class="soz-cat-lbl" data-i="soz_about">Ilova haqida</div>
+        </div>
+        <div class="soz-card">
+          <a class="soz-row" href="https://t.me/BankNews_official" target="_blank" class="no-underline">
+            <div class="soz-row-l">
+              <div class="soz-row-ico" style="background:linear-gradient(135deg,rgba(55,120,240,.2),rgba(55,120,240,.06));color:#5b9cf6">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 3L2 10l7 3 3 7 10-17z"/><path d="M9 13l3 3"/>
+                </svg>
+              </div>
+              <div>
+                <div class="soz-row-name" data-i="soz_channel">Rasmiy kanal</div>
+                <div class="soz-row-sub">@BankNews_official</div>
+              </div>
+            </div>
+            <div class="soz-chev">›</div>
+          </a>
+          <div class="soz-row" style="cursor:default">
+            <div class="soz-row-l">
+              <div class="soz-row-ico" style="background:linear-gradient(135deg,rgba(232,192,74,.18),rgba(232,192,74,.06));color:var(--gold)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div>
+                <div class="soz-row-name" data-i="soz_version">Versiya</div>
+                <div class="soz-row-sub">BankNews 2.0 · 2026</div>
+              </div>
+            </div>
+            <div style="font-size:10px;font-weight:700;color:var(--green);background:rgba(0,214,143,.1);border:1px solid rgba(0,214,143,.2);border-radius:8px;padding:3px 8px">Yangi</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── PREMIUM ── DOM[8] -->
+  <div class="sec" id="s-prem">
+    <div class="section-pad">
+
+      <!-- Hero -->
+      <div class="prem-hero">
+        <div class="prem-glow"></div>
+        <div class="prem-crown-wrap">
+          <div class="prem-crown-ico">
+            <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 19h20M2 19l3-9 5 4 2-7 2 7 5-4 3 9"/>
+              <circle cx="12" cy="5" r="1.2" fill="rgba(255,255,255,.95)" stroke="none"/>
+              <circle cx="4.5" cy="10" r="1.2" fill="rgba(255,255,255,.95)" stroke="none"/>
+              <circle cx="19.5" cy="10" r="1.2" fill="rgba(255,255,255,.95)" stroke="none"/>
+            </svg>
+          </div>
+        </div>
+        <div class="prem-title">Ishonch bilan ishlang</div>
+        <div class="prem-sub">Shaxsiy kurs ogohlantirishlari + AI tahlil</div>
+        <div class="prem-users-badge" style="display:inline-flex;align-items:center;gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>200+ foydalanuvchi Premium oldi</div>
+      </div>
+
+      <!-- Features -->
+      <div class="prem-list">
+        <div class="prem-item">
+          <div class="prem-frow-ico" style="background:linear-gradient(135deg,#ff9500,#e07000);color:#fff">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </div>
+          <div class="prem-item-txt">
+            <div class="prem-item-name">Real vaqt ogohlantirishlari</div>
+            <div class="prem-item-sub">Kurs chegaraga yetganda darhol xabar</div>
+          </div>
+        </div>
+        <div class="prem-item">
+          <div class="prem-frow-ico" style="background:linear-gradient(135deg,#7c5cfc,#5a3cd8);color:#fff">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/><path d="M8 3.8A9.9 9.9 0 0 1 12 3"/>
+            </svg>
+          </div>
+          <div class="prem-item-txt">
+            <div class="prem-item-name">Kuniga 4× AI tahlil</div>
+            <div class="prem-item-sub">Bozor prognozi va tavsiyalar</div>
+          </div>
+        </div>
+        <div class="prem-item">
+          <div class="prem-frow-ico" style="background:linear-gradient(135deg,#3778f0,#1a56c8);color:#fff">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <div class="prem-item-txt">
+            <div class="prem-item-name">Bank taqqoslash grafiklari</div>
+            <div class="prem-item-sub">30 kunlik trend va prognoz</div>
+          </div>
+        </div>
+        <div class="prem-item">
+          <div class="prem-frow-ico" style="background:linear-gradient(135deg,#26a17b,#1a7a5e);color:#fff">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 9l9-6 9 6"/><line x1="9" y1="21" x2="9" y2="13"/><line x1="15" y1="21" x2="15" y2="13"/>
+            </svg>
+          </div>
+          <div class="prem-item-txt">
+            <div class="prem-item-name">24+ bank to'liq ma'lumot</div>
+            <div class="prem-item-sub">Filiallar, telefon, ishlash vaqti</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarif tanlash — AvtoPilot uslubi -->
+      <div class="prem-tariff-title">Tarifni tanlang</div>
+      <div class="prem-plans">
+        <div class="prem-plan trial on" onclick="selectPlan(this)">
+          <div class="prem-plan-badge">Sinab ko'ring</div>
+          <div class="prem-plan-period">7 kunlik</div>
+          <div class="prem-plan-price">9 900</div>
+          <div class="prem-plan-cur">so'm</div>
+          <div class="prem-plan-daily">1 414 so'm/kuni</div>
+        </div>
+        <div class="prem-plan popular" onclick="selectPlan(this)">
+          <div class="prem-plan-badge">Mashhur</div>
+          <div class="prem-plan-period">1 oylik</div>
+          <div class="prem-plan-price">29 900</div>
+          <div class="prem-plan-cur">so'm</div>
+          <div class="prem-plan-daily">997 so'm/kuni</div>
+        </div>
+        <div class="prem-plan economy" onclick="selectPlan(this)">
+          <div class="prem-plan-badge">Tejamkor</div>
+          <div class="prem-plan-period">3 oylik</div>
+          <div class="prem-plan-price">69 900</div>
+          <div class="prem-plan-cur">so'm</div>
+          <div class="prem-plan-daily">777 so'm/kuni · 22% tejash</div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <a class="prem-cta" href="https://t.me/BankNews_Official_bot?start=premium" target="_blank">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Premium ga o'tish
+      </a>
+      <div class="prem-note">Istalgan vaqt bekor qiling · Xavfsiz to'lov</div>
+
+      <!-- Bot info -->
+      <div class="prem-bot-info">
+        <div style="width:40px;height:40px;border-radius:12px;background:rgba(124,92,252,.15);border:1px solid rgba(124,92,252,.3);display:flex;align-items:center;justify-content:center;color:var(--purple2);flex-shrink:0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="9" cy="17" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text)">Telegram bot ham bor!</div>
+          <div style="font-size:11px;color:var(--text3)">@BankNews_Official_bot orqali ham faollashtiring</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV — 5 tab -->
+<div class="bnav">
+
+  <!-- Valyuta -->
+  <button class="nb on" data-tab="0" onclick="goTab(0)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M7 16V4m0 0L3 8m4-4l4 4"/>
+      <path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+    </svg>
+    <span>Valyuta</span>
+  </button>
+
+  <!-- AI Tahlil -->
+  <button class="nb" data-tab="6" onclick="goTab(6)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 3l1.5 4 4 1.5-4 1.5L10 14l-1.5-4-4-1.5 4-1.5z"/>
+      <path d="M18.5 2l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z"/>
+      <path d="M6 17l.8 2 2 .8-2 .8L6 22.6l-.8-2-2-.8 2-.8z"/>
+    </svg>
+    <span>AI Tahlil</span>
+  </button>
+
+  <!-- Hisob — abacus/calculator hybrid -->
+  <button class="nb" data-tab="2" onclick="goTab(2)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="2" width="18" height="20" rx="3"/>
+      <rect x="6" y="5" width="12" height="4.5" rx="1.5"/>
+      <circle cx="8" cy="14" r="1.5" fill="currentColor" stroke="none"/>
+      <circle cx="12" cy="14" r="1.5" fill="currentColor" stroke="none"/>
+      <circle cx="16" cy="14" r="1.5" fill="currentColor" stroke="none"/>
+      <circle cx="8" cy="19" r="1.5" fill="currentColor" stroke="none"/>
+      <circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/>
+      <rect x="14.5" y="16.5" width="3" height="4" rx="1" fill="currentColor" stroke="none"/>
+    </svg>
+    <span>Hisob</span>
+  </button>
+
+  <!-- Sozlamalar -->
+  <button class="nb" data-tab="7" onclick="goTab(7)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+    <span>Sozlamalar</span>
+  </button>
+
+  <!-- Premium — olmoskistacha (gem) iconkasi -->
+  <button class="nb prem-nb" data-tab="8" onclick="goTab(8)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="7.5,2 16.5,2 22,9 12,22 2,9"/>
+      <line x1="2" y1="9" x2="22" y2="9"/>
+      <polyline points="7.5,2 12,9 16.5,2"/>
+    </svg>
+    <span>Premium</span>
+  </button>
+
+</div>
+
+<!-- ── METALLAR FULL-SCREEN PANEL ── -->
+<div class="fullpanel" id="metalsPanel">
+  <div class="bs-topbar">
+    <button class="bs-back-btn" onclick="closeMetalsPanel()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="bs-topbar-info">
+      <div class="bsheet-title" data-i="metals_title">Qimmatbaho Metallar</div>
+      <div class="text-dim">Oltin · Kumush · Platina</div>
+    </div>
+    <div class="clive" style="flex-shrink:0"><span class="dot"></span>LIVE</div>
+  </div>
+  <div class="fullpanel-body">
+    <div id="m-load" class="loading"><div class="spinner"></div><div class="ltxt" data-i="loading">Yuklanmoqda...</div></div>
+    <div id="m-body" style="display:none">
+      <div class="card">
+        <div class="unit-toggle">
+          <button class="utab on" id="utab-oz" onclick="setUnit('oz')">oz (unsiya)</button>
+          <button class="utab" id="utab-g" onclick="setUnit('g')">gramm</button>
+        </div>
+        <div class="mgrid" id="mgrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── KRIPTO FULL-SCREEN PANEL ── -->
+<div class="fullpanel" id="cryptoPanel">
+  <div class="bs-topbar">
+    <button class="bs-back-btn" onclick="closeCryptoPanel()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="bs-topbar-info">
+      <div class="bsheet-title">P2P & Kripto</div>
+      <div class="text-dim">Binance P2P · USDT/UZS</div>
+    </div>
+    <div class="clive" style="flex-shrink:0"><span class="dot"></span>LIVE</div>
+  </div>
+  <div class="fullpanel-body">
+    <div id="c-load" class="loading"><div class="spinner"></div><div class="ltxt" data-i="loading">Yuklanmoqda...</div></div>
+    <div id="c-body" style="display:none">
+
+      <!-- P2P Bozor Kursi -->
+      <div class="card" id="p2pCard">
+        <div class="ch">
+          <div class="flex-row">
+            <div class="ct">P2P Bozor Kursi</div>
+            <span style="font-size:9px;font-weight:700;background:rgba(26,161,123,.15);border:1px solid rgba(26,161,123,.3);color:#26a17b;border-radius:4px;padding:1px 5px;letter-spacing:.5px">USDT/UZS</span>
+          </div>
+          <div class="flex-row-6">
+            <div class="clive" id="p2pLive" style="display:none"><span class="dot"></span>LIVE</div>
+            <button onclick="loadP2P(true)" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:2px 4px" title="Yangilash">↻</button>
+          </div>
+        </div>
+        <div id="p2pBody">
+          <div style="padding:16px;text-align:center;color:var(--text3);font-size:12px">
+            <div class="spinner" style="margin:0 auto 8px"></div>Yuklanmoqda...
+          </div>
+        </div>
+      </div>
+
+      <!-- Kripto narxlar -->
+      <div class="card" style="padding-bottom:4px">
+        <div class="ch">
+          <div class="ct">Top 50 Kripto</div>
+          <div class="clive"><span class="dot"></span>LIVE</div>
+        </div>
+        <div class="csearch-wrap">
+          <div class="csearch-box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;color:var(--text3)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="csearch" id="csearchInput" placeholder="Bitcoin, ETH, Solana..." oninput="renderCrypto()" autocomplete="off" autocorrect="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="clist" id="cgrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── BANK LIST FULL-SCREEN PANEL ── -->
+<div class="fullpanel" id="bankListPanel">
+  <div class="bs-topbar">
+    <button class="bs-back-btn" onclick="closeBankListPanel()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="bs-topbar-info">
+      <div class="bsheet-title">Tijorat Banklari</div>
+      <div class="text-dim" id="bankListUpdated"></div>
+    </div>
+    <div class="clive" style="flex-shrink:0"><span class="dot"></span>LIVE</div>
+  </div>
+  <div class="fullpanel-body">
+    <!-- Valyuta tabs -->
+    <div class="sub-tabs" id="bankCurTabs" style="margin-bottom:10px">
+      <button class="stab on" onclick="setBankCur('USD',this)">
+        <img src="https://flagcdn.com/h28/us.png" width="18" height="12" style="border-radius:2px;object-fit:cover;vertical-align:middle"> USD
+      </button>
+      <button class="stab" onclick="setBankCur('EUR',this)">
+        <img src="https://flagcdn.com/h28/eu.png" width="18" height="12" style="border-radius:2px;object-fit:cover;vertical-align:middle"> EUR
+      </button>
+      <button class="stab" onclick="setBankCur('RUB',this)">
+        <img src="https://flagcdn.com/h28/ru.png" width="18" height="12" style="border-radius:2px;object-fit:cover;vertical-align:middle"> RUB
+      </button>
+    </div>
+    <!-- Saralash -->
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <button id="bsort-buy" data-dir="buy" onclick="setBankSort('buy')" class="bsort-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg> Eng yuqori sotib olish
+      </button>
+      <button id="bsort-sell" data-dir="sell" onclick="setBankSort('sell')" class="bsort-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> Eng arzon sotish
+      </button>
+    </div>
+    <!-- Qidirish -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <div style="flex:1;position:relative">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="bankSearch" type="text" placeholder="Bank qidirish..." oninput="renderBankTable()"
+          onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'"
+          style="width:100%;padding:9px 13px 9px 32px;background:var(--surface);border:1.5px solid var(--border2);border-radius:12px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;box-sizing:border-box">
+      </div>
+      <button class="geo-btn" onclick="openGeoSheet()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg> Yaqin
+      </button>
+    </div>
+    <div id="bankTable"></div>
+  </div>
+</div>
+
+<!-- ── BANK CALCULATOR BOTTOM SHEET ── -->
+<div class="bsheet-overlay" id="bsOverlay" onclick="closeBankCalc()"></div>
+<div class="bsheet" id="bsPanel">
+  <div class="bs-topbar">
+    <button class="bs-back-btn" onclick="closeBankCalc()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="bs-topbar-info">
+      <div class="bsheet-title" id="bsName">Kapitalbank</div>
+      <div class="text-dim" id="bsCur">USD</div>
+    </div>
+  </div>
+
+  <!-- Buy / Sell kurslar -->
+  <div class="bs-rates">
+    <div class="bs-rate-card buy" onclick="setBsDir('buy')">
+      <div class="bs-rate-lbl">Sotib olish</div>
+      <div class="bs-rate-num" id="bsBuyNum">—</div>
+      <div class="bs-rate-sub">Siz sotasiz</div>
+    </div>
+    <div class="bs-rate-card sell" onclick="setBsDir('sell')">
+      <div class="bs-rate-lbl">Sotish</div>
+      <div class="bs-rate-num" id="bsSellNum">—</div>
+      <div class="bs-rate-sub">Siz olasiz</div>
+    </div>
+  </div>
+
+  <!-- Yo'nalish: Siz sotasiz (buy) | Siz olasiz (sell) -->
+  <div class="bc-dir-row">
+    <button id="bsDirBuy" class="bc-dir-btn buy on" onclick="setBsDir('buy')" style="display:flex;align-items:center;justify-content:center;gap:5px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg> Siz <b>sotasiz</b>
+    </button>
+    <button id="bsDirSell" class="bc-dir-btn sell" onclick="setBsDir('sell')" style="display:flex;align-items:center;justify-content:center;gap:5px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> Siz <b>olasiz</b>
+    </button>
+  </div>
+
+  <!-- Joriy kurs -->
+  <div class="bc-rate-badge">
+    <div>
+      <div class="bc-rate-lbl" id="bsRateLbl">Sotib olish kursi</div>
+      <div class="bc-rate-val" id="bsRateVal" class="text-green">12,115</div>
+    </div>
+    <div style="font-size:10px;color:var(--text3);text-align:right">
+      <div id="bsSpreadLbl" style="margin-bottom:2px">Spread</div>
+      <div id="bsSpreadVal" style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--text2)">90</div>
+    </div>
+  </div>
+
+  <!-- Miqdor kiritish -->
+  <div class="bc-input-wrap">
+    <input id="bsAmt" class="bc-input" type="number" inputmode="decimal"
+      placeholder="0" oninput="doBankCalc()" value="100">
+    <span class="bc-input-cur" id="bsAmtCur">USD</span>
+  </div>
+
+  <!-- UZS ↔ valyuta almashtirish -->
+  <button class="bc-swap-btn" onclick="swapBsDir()" style="display:flex;align-items:center;justify-content:center;gap:6px">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>UZS ↔ <span id="bsSwapCur">USD</span> almashtiruv
+  </button>
+
+  <!-- Natija -->
+  <div class="bc-result-box">
+    <div class="bc-result-lbl" id="bsResLbl">Siz olasiz</div>
+    <div class="bc-result-val" id="bsResVal" class="text-green">1,211,500</div>
+    <div class="bc-result-cur" id="bsResCur">so'm</div>
+  </div>
+
+  <!-- Amallar -->
+  <div class="bc-action-row">
+    <button class="bc-copy-btn" onclick="copyBsResult()" style="display:flex;align-items:center;justify-content:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Nusxa olish</button>
+    <button class="bc-calc-btn" onclick="sendToCalc()" style="display:flex;align-items:center;justify-content:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>Kalkulyatorga</button>
+  </div>
+</div>
+
+<!-- ── SHARE CARD MODAL ── -->
+<div class="share-overlay" id="shareOverlay" onclick="closeShareModal(event)">
+  <div class="share-modal" id="shareModal">
+    <div class="bsheet-handle"></div>
+    <div class="bsheet-head">
+      <div class="bsheet-title" style="display:flex;align-items:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>Kurslarni ulashish</div>
+      <button class="bsheet-close" onclick="closeShareModal()">✕</button>
+    </div>
+    <!-- Visual card preview -->
+    <div class="share-card" id="shareCard">
+      <div class="sc-header">
+        <div class="sc-brand">
+          <div class="sc-brand-ico">🏦</div>
+          <div>
+            <div class="sc-brand-name">BANK NEWS</div>
+            <div style="font-size:8px;color:rgba(255,255,255,.35);letter-spacing:2px">VALYUTA KURSLARI</div>
+          </div>
+        </div>
+        <div class="sc-date" id="scDate"></div>
+      </div>
+      <div class="sc-section">
+        <div class="sc-title">Markaziy Bank Kursi</div>
+        <div id="scCbuRows"></div>
+      </div>
+      <div class="sc-section" id="scP2PSection" style="display:none">
+        <div class="sc-title">P2P Bozor · USDT/UZS</div>
+        <div id="scP2PRows"></div>
+      </div>
+      <div class="sc-section" id="scGoldSection" style="display:none">
+        <div class="sc-title">Qimmatbaho Metallar</div>
+        <div id="scGoldRows"></div>
+      </div>
+      <div class="sc-best" id="scBestBank" style="display:none">
+        <div class="sc-best-lbl">⭐ Eng yaxshi bank kursi (USD)</div>
+        <div class="sc-best-val" id="scBestBankVal"></div>
+      </div>
+      <div class="sc-footer">BANK NEWS · t.me · Real vaqt ma'lumotlari</div>
+    </div>
+    <div class="share-actions">
+      <button class="share-act-btn primary" onclick="doShareTelegram()" style="display:flex;align-items:center;justify-content:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3L2 10l7 3 3 7 10-17z"/><path d="M9 13l3 3"/></svg>Telegram'da ulash</button>
+      <button class="share-act-btn secondary" onclick="doShareCopy()" style="display:flex;align-items:center;justify-content:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Nusxa olish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── GEOLOCATION SHEET ── -->
+<div class="bsheet-overlay" id="geoOverlay" onclick="closeGeoSheet()"></div>
+<div class="geo-sheet" id="geoSheet">
+  <div class="bsheet-handle"></div>
+  <div class="bsheet-head">
+    <div>
+      <div class="bsheet-title">📍 Eng yaqin banklar</div>
+      <div class="text-dim" id="geoStatus">Joylashuv aniqlanmoqda...</div>
+    </div>
+    <button class="bsheet-close" onclick="closeGeoSheet()">✕</button>
+  </div>
+  <div id="geoList" style="padding-bottom:12px"></div>
+</div>
+
+<!-- ── CRYPTO DETAIL SHEET ── -->
+<div class="bsheet-overlay" id="cdOverlay" onclick="closeCryptoDetail()"></div>
+<div class="cd-sheet" id="cdPanel">
+  <div class="bsheet-handle"></div>
+  <div class="bsheet-head">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div id="cdLogo" style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text3)"></div>
+      <div>
+        <div class="bsheet-title" id="cdName">—</div>
+        <div class="text-dim" id="cdSym">—</div>
+      </div>
+    </div>
+    <button class="bsheet-close" onclick="closeCryptoDetail()">✕</button>
+  </div>
+  <div style="padding:0 16px 100px">
+    <!-- Narx -->
+    <div style="margin:14px 0 16px">
+      <div id="cdPrice" style="font-size:30px;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--text)">—</div>
+      <div id="cdChange" style="font-size:13px;margin-top:5px;color:var(--text2)"></div>
+    </div>
+    <!-- Grafik -->
+    <div style="background:var(--surface);border:1px solid var(--glass-border);border-radius:16px;padding:14px 14px 10px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--text)">Narx grafigi</div>
+        <div style="display:flex;gap:5px">
+          <button class="cd-rbtn on" onclick="loadCryptoChart(7,this)">7K</button>
+          <button class="cd-rbtn" onclick="loadCryptoChart(30,this)">1O</button>
+          <button class="cd-rbtn" onclick="loadCryptoChart(90,this)">3O</button>
+        </div>
+      </div>
+      <div id="cdChart" style="min-height:90px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px">
+        <div class="spinner" style="width:22px;height:22px;border-width:2px"></div>
+      </div>
+    </div>
+    <!-- Bozor ma'lumotlari -->
+    <div style="background:var(--surface);border:1px solid var(--glass-border);border-radius:16px;padding:14px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px">Bozor ma'lumotlari</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="cdMarket"></div>
+    </div>
+    <!-- AI Tahlil -->
+    <div style="background:var(--surface);border:1px solid var(--glass-border);border-radius:16px;padding:14px">
+      <div class="row-between">
+        <div style="font-size:12px;font-weight:700;color:var(--text)">AI Tahlil</div>
+        <div style="font-size:9px;font-weight:700;background:rgba(255,179,0,.12);border:1px solid rgba(255,179,0,.25);color:#ffb300;border-radius:4px;padding:2px 7px;letter-spacing:.5px">● Gemini AI</div>
+      </div>
+      <div id="cdAI">
+        <button onclick="loadCryptoAI()" style="width:100%;padding:13px;background:linear-gradient(135deg,#ffb300,#ff9500);border:none;border-radius:12px;color:#000;font-weight:800;font-size:13px;cursor:pointer">
+          🤖 AI Tahlil qilish
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+
+<!-- CURRENCY PICKER SHEET -->
+<div class="cpick-overlay" id="cpickOverlay" onclick="closeCpick()"></div>
+<div class="cpick-panel" id="cpickPanel">
+  <div class="cpick-handle"></div>
+  <div class="cpick-head">Valyuta tanlang</div>
+  <div class="cpick-list" id="cpickList"></div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="auth-overlay" id="authOverlay" onclick="closeAuthModal()"></div>
+<div class="auth-modal" id="authModal">
+  <div class="auth-handle"></div>
+  <div id="authContent"></div>
+</div>
+
+<!-- ── LANG PICKER SHEET ── -->
+<div class="bsheet-overlay" id="langSheetOverlay" onclick="closeLangSheet()"></div>
+<div class="theme-sheet" id="langSheet">
+  <div class="bsheet-handle"></div>
+  <div class="bsheet-head">
+    <div class="bsheet-title">Ilova tili</div>
+    <button class="bsheet-close" onclick="closeLangSheet()">✕</button>
+  </div>
+  <div class="theme-options">
+    <div class="theme-opt" onclick="setLangOption('uz')">
+      <div class="theme-opt-l">
+        <div class="theme-opt-ico" style="font-size:22px">🇺🇿</div>
+        <span class="theme-opt-name">O'zbekcha</span>
+      </div>
+      <div class="theme-radio" id="lrad-uz"></div>
+    </div>
+    <div class="theme-opt" onclick="setLangOption('uz_cyr')">
+      <div class="theme-opt-l">
+        <div class="theme-opt-ico" style="font-size:22px">🇺🇿</div>
+        <span class="theme-opt-name">Ўзбекча</span>
+      </div>
+      <div class="theme-radio" id="lrad-uz_cyr"></div>
+    </div>
+    <div class="theme-opt" onclick="setLangOption('qqp')">
+      <div class="theme-opt-l">
+        <div class="theme-opt-ico" style="font-size:11px;font-weight:800;color:#4ade80;letter-spacing:.5px">QQ</div>
+        <span class="theme-opt-name">Qaraqalpaqsha</span>
+      </div>
+      <div class="theme-radio" id="lrad-qqp"></div>
+    </div>
+    <div class="theme-opt" onclick="setLangOption('en')">
+      <div class="theme-opt-l">
+        <div class="theme-opt-ico" style="font-size:22px">🇬🇧</div>
+        <span class="theme-opt-name">English</span>
+      </div>
+      <div class="theme-radio" id="lrad-en"></div>
+    </div>
+    <div class="theme-opt" onclick="setLangOption('ru')">
+      <div class="theme-opt-l">
+        <div class="theme-opt-ico" style="font-size:22px">🇷🇺</div>
+        <span class="theme-opt-name">Русский</span>
+      </div>
+      <div class="theme-radio" id="lrad-ru"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── THEME PICKER SHEET ── -->
+<div class="bsheet-overlay" id="themeSheetOverlay" onclick="closeThemeSheet()"></div>
+<div class="theme-sheet" id="themeSheet">
+  <div class="bsheet-handle"></div>
+  <div class="bsheet-head">
+    <div class="bsheet-title">Mavzuni tanlash</div>
+    <button class="bsheet-close" onclick="closeThemeSheet()">✕</button>
+  </div>
+  <div class="theme-options">
+    <div class="theme-opt" id="topt-system" onclick="setThemeOption('system')">
+      <div class="theme-opt-l">
+        <div class="theme-opt-ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+            <path d="M12 7a5 5 0 0 1 0 10V7z" fill="currentColor" stroke="none"/>
+            <circle cx="12" cy="12" r="5"/>
+          </svg>
+        </div>
+        <span class="theme-opt-name">Tizimli</span>
+      </div>
+      <div class="theme-radio" id="trad-system"></div>
+    </div>
+    <div class="theme-opt" id="topt-light" onclick="setThemeOption('light')">
+      <div class="theme-opt-l">
+        <div class="theme-opt-ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+        </div>
+        <span class="theme-opt-name">Yorqin</span>
+      </div>
+      <div class="theme-radio" id="trad-light"></div>
+    </div>
+    <div class="theme-opt" id="topt-dark" onclick="setThemeOption('dark')">
+      <div class="theme-opt-l">
+        <div class="theme-opt-ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </div>
+        <span class="theme-opt-name">Qorong'i</span>
+      </div>
+      <div class="theme-radio" id="trad-dark"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

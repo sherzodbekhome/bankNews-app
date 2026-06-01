@@ -1,0 +1,103 @@
+﻿best_USD topildi!
+<div class="tab-pane fade in show active" id="best_USD" role="tabpanel">
+ <div class="bank-contacts">
+  <div class="feed-back">
+   <div class="organization-contacts" style="border-bottom: 0">
+    <div class="bc-inner-blocks-left">
+     <div class="bc-inner-block-left">
+      <span class="semibold-text">
+       Sotib olish
+      </span>
+      <div class="bc-inner-block-left-texts">
+       <div class="bc-inner-block-left-text">
+        <a href="/uz/currency/bank/mikrokreditbank">
+         <span class="medium-text">
+          MKBank
+         </span>
+        </a>
+       </div>
+       <span class="medium-text green-date">
+        11 990 so'm
+       </span>
+      </div>
+      <div class="bc-inner-block-left-texts">
+       <div class="bc-inner-block-left-text">
+        <a href="/uz/currency/bank/universalbank">
+         <span class="medium-text">
+          Universal bank
+         </span>
+        </a>
+       </div>
+       <span class="medium-text green-date">
+        11 980 so'm
+       </span>
+      </div>
+      <div class="bc-inner-block-left-texts">
+       <div class="bc-inner-block-left-text">
+        <a href="/uz/currency/bank/qishloq-qurilish-bank">
+         <span class="medium-text">
+          BRB
+         </span>
+        </a>
+       </div>
+       <span class="medium-text green-date">
+        11 980 so'm
+       </span>
+      </div>
+      <div class="bc-inner-block-left-texts zhidden">
+       <div class="bc-inner-block-left-text">
+        <a href="/uz/currency/bank/aloqabank">
+         <span class="medium-text">
+          Aloqabank
+         </span>
+        </a>
+       </div>
+       <span class="medium-text green-date">
+        11 970 so'm
+       </span>
+      </div>
+      <div class="bc-inner-block-left-texts zhidden">
+       <div class="bc-inner-block-left-text">
+        <a href="/uz/currency/bank/trastbank">
+         <span class="medium-text">
+          Trastbank
+         </span>
+        </a>
+       </div>
+       <span class="medium-text green-date">
+        11 960 so'm
+       </span>
+      </div>
+      <div class="bc-inner-block-left-texts zhidden">
+       <div class="bc-inner-block-left-text">
+        <a href="/uz/currency/bank/agrobank">
+         <span class="medium-text">
+          Agrobank
+         </span>
+        </a>
+       </div>
+       <span class="medium-text green-date">
+        11 960 so'm
+       </span>
+      </div>
+      <div class="bc-inner-block-left-texts zhidden">
+       <div class="bc-inner-block-left-text">
+        <a href="/uz/currency/bank/tenge-bank">
+         <span class="medium-text">
+          Tenge Bank
+         </span>
+        </a>
+       </div>
+       <span class="medium-text green-date">
+        11 950 so'm
+       </span>
+      </div>
+      <div class="bc-inner-block-left-texts zhidden">
+       <div class="bc-inner-block-left-text">
+        <a href="/uz/currency/bank/ipoteka-bank">
+         <span class="medium-text">
+          Ipoteka bank
+         </span>
+        </a>
+       </div>
+       <span class="medium-text gre
