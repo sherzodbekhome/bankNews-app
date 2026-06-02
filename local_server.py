@@ -1,0 +1,169 @@
+"""
+Lokal server: statik fayllar + API proxy endpointlar
+- /api/ai/analyze     — Gemini AI tahlil
+- /api/admin/stats    — statistika
+- /api/admin/broadcast — broadcast xabar (bot orqali)
+- /api/admin/rate     — kurs boshqaruvi
+"""
+import asyncio, json, os, sys
+from pathlib import Path
+
+_ROOT = Path(__file__).parent / "Sherzodbek.AI" / "backend"
+sys.path.insert(0, str(_ROOT))
+
+from aiohttp import web
+from dotenv import load_dotenv
+load_dotenv(_ROOT / ".env")
+
+FRONTEND_DIR = Path(__file__).parent / "Sherzodbek.AI" / "frontend"
+PORT = 3000
+
+H = {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"}
+
+
+# ── AI tahlil ─────────────────────────────────────────────────────────────────
+async def handle_ai(request):
+    try:
+        from backend.api_handlers import CBUHandler, CryptoHandler, MetalsHandler
+        from telegram_bot.ai_analyzer import AIAnalyzer
+
+        cbu, crypto, metals = await asyncio.gather(
+            CBUHandler.get_rates(),
+            CryptoHandler.get_crypto_prices(),
+            MetalsHandler.get_metals_prices(),
+            return_exceptions=True,
+        )
+        if isinstance(cbu,    Exception): cbu    = None
+        if isinstance(crypto, Exception): crypto = None
+        if isinstance(metals, Exception): metals = None
+
+        currency_flat = {k: v["rate"] for k, v in (cbu or {}).items() if "rate" in v}
+        crypto_flat   = {k: v["price"] for k, v in (crypto or {}).items() if "price" in v}
+
+        ai       = AIAnalyzer()
+        analysis = await ai.analyze_market(currency_flat, crypto_flat, metals or {})
+        return web.Response(text=json.dumps({"ok": True, "analysis": analysis or "Tahlil mavjud emas."}), headers=H)
+    except Exception as e:
+        return web.Response(text=json.dumps({"ok": False, "error": str(e)}), headers=H)
+
+
+# ── Admin: statistika ─────────────────────────────────────────────────────────
+async def handle_admin_stats(request):
+    try:
+        from core.database import db
+        stats = await db.get_global_stats()
+        alerts = await db.get_web_alerts_count()
+        web_users = await db.get_web_users_count()
+        return web.Response(text=json.dumps({
+            "ok": True,
+            "web_users": web_users,
+            "alerts": alerts,
+            "tg_users": stats.get("total_users", 0),
+        }), headers=H)
+    except Exception as e:
+        return web.Response(text=json.dumps({
+            "ok": True,
+            "web_users": "—",
+            "alerts": "—",
+            "tg_users": "—",
+            "note": f"DB ulanmagan: {e}"
+        }), headers=H)
+
+
+# ── Admin: broadcast ──────────────────────────────────────────────────────────
+async def handle_admin_broadcast(request):
+    try:
+        data = await request.json()
+        text = data.get("text", "").strip()
+        if not text:
+            return web.Response(text=json.dumps({"ok": False, "error": "Xabar bo'sh"}), headers=H)
+
+        from core.config import BOT_TOKEN, ADMIN_ID
+        from aiogram import Bot
+        from aiogram.enums import ParseMode
+        from aiogram.client.default import DefaultBotProperties
+
+        bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+        try:
+            await bot.send_message(ADMIN_ID, f"📢 <b>Test broadcast:</b>\n\n{text}")
+            result = {"ok": True, "sent": 1, "note": "Lokal: faqat adminga yuborildi"}
+        finally:
+            await bot.session.close()
+
+        return web.Response(text=json.dumps(result), headers=H)
+    except Exception as e:
+        return web.Response(text=json.dumps({"ok": False, "error": str(e)}), headers=H)
+
+
+# ── Admin: kurs saqlash ───────────────────────────────────────────────────────
+async def handle_admin_rate(request):
+    try:
+        data = await request.json()
+        currency = data.get("currency", "USD").upper()
+        buy  = float(data.get("buy", 0))
+        sell = float(data.get("sell", 0))
+
+        # Lokal JSON faylga saqlash (DB yo'q bo'lganda)
+        rates_file = FRONTEND_DIR.parent / "backend" / "banks_data.json"
+        local_rates = {}
+        if rates_file.exists():
+            try:
+                local_rates = json.loads(rates_file.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+        if "overrides" not in local_rates:
+            local_rates["overrides"] = {}
+        local_rates["overrides"][currency] = {"buy": buy, "sell": sell}
+        rates_file.write_text(json.dumps(local_rates, ensure_ascii=False, indent=2), encoding="utf-8")
+
+        return web.Response(text=json.dumps({"ok": True, "currency": currency, "buy": buy, "sell": sell}), headers=H)
+    except Exception as e:
+        return web.Response(text=json.dumps({"ok": False, "error": str(e)}), headers=H)
+
+
+# ── Statik fayllar ────────────────────────────────────────────────────────────
+async def handle_static(request):
+    path = request.match_info.get("path", "index.html") or "index.html"
+    file_path = FRONTEND_DIR / path
+    if file_path.is_dir():
+        file_path = file_path / "index.html"
+    if not file_path.exists():
+        raise web.HTTPNotFound()
+    return web.FileResponse(file_path)
+
+
+# ── User API (lokal stub) ─────────────────────────────────────────────────────
+async def handle_user_alerts(request):
+    if request.method == 'GET':
+        return web.Response(text=json.dumps({"ok": True, "alerts": []}), headers=H)
+    if request.method == 'POST':
+        return web.Response(text=json.dumps({"ok": True}), headers=H)
+    if request.method == 'DELETE':
+        return web.Response(text=json.dumps({"ok": True}), headers=H)
+    raise web.HTTPMethodNotAllowed(request.method, ['GET','POST','DELETE'])
+
+async def handle_user_portfolio(request):
+    if request.method == 'GET':
+        return web.Response(text=json.dumps({"ok": True, "portfolio": []}), headers=H)
+    return web.Response(text=json.dumps({"ok": True}), headers=H)
+
+async def handle_user_me(request):
+    return web.Response(text=json.dumps({"ok": True, "user": None}), headers=H)
+
+# ── App ───────────────────────────────────────────────────────────────────────
+app = web.Application()
+app.router.add_get ("/api/ai/analyze",       handle_ai)
+app.router.add_get ("/api/admin/stats",      handle_admin_stats)
+app.router.add_post("/api/admin/broadcast",  handle_admin_broadcast)
+app.router.add_post("/api/admin/rate",       handle_admin_rate)
+app.router.add_route("*", "/api/user/alerts",    handle_user_alerts)
+app.router.add_route("*", "/api/user/portfolio", handle_user_portfolio)
+app.router.add_get ("/api/user/me",              handle_user_me)
+app.router.add_get ("/",                     handle_static)
+app.router.add_get ("/{path:.+}",            handle_static)
+
+if __name__ == "__main__":
+    print(f"Server: http://localhost:{PORT}")
+    print("Endpointlar: /api/ai/analyze | /api/admin/stats | /api/admin/broadcast | /api/admin/rate")
+    web.run_app(app, host="0.0.0.0", port=PORT)
