@@ -3147,8 +3147,19 @@ function renderCdChart(){
   if(_cdChartInst){_cdChartInst.destroy();_cdChartInst=null;}
   const all=chartHistory.filter(h=>h[_cdCur]!=null);
   const sliced=all.length>_cdPeriod?all.slice(-_cdPeriod):all;
+
+  // Tarix yo'q bo'lsa faqat joriy kursni ko'rsat
+  if(sliced.length<2){
+    const rate=STATE.CBU[_cdCur]?.rate;
+    document.getElementById('cdRateVal').textContent=rate?fmtFull(rate,0)+' so\'m':'Ma\'lumot yo\'q';
+    document.getElementById('cdRateChange').textContent='';
+    document.getElementById('cdStatsRow').innerHTML='';
+    const wrap=document.getElementById('cdChart');
+    if(wrap)wrap.closest('.cd-chart-wrap').innerHTML='<div class="chart-empty" style="height:100%;display:flex;align-items:center;justify-content:center">📊 Grafik uchun tarix ma\'lumoti yuklanmoqda...</div>';
+    return;
+  }
   const ctx=document.getElementById('cdChart')?.getContext('2d');
-  if(!ctx||sliced.length<2) return;
+  if(!ctx) return;
 
   // Shamsimon (candle) data: har kun uchun open=oldingi kun close, close=bugungi
   const opens=sliced.map((h,i)=>i===0?(sliced[1]?.[_cdCur]||h[_cdCur]):sliced[i-1][_cdCur]);
@@ -3226,14 +3237,23 @@ Quyidagilarni o'zbek tilida qisqa va aniq yozing:
 Javob qisqa bo'lsin, har bir band 1-2 jumladan iborat.`;
   try{
     const text=await _callGeminiDirect(prompt);
+    if(!text) throw new Error('Javob kelmadi');
     el.innerHTML=`<div class="cd-ai-result">${text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}</div>
       <button class="cd-ai-btn" style="border-top:1px solid var(--border)" onclick="loadCdAI()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.03-8.8"/></svg>
         Yangilash
       </button>`;
   }catch(e){
-    el.innerHTML=`<div style="padding:14px 16px;font-size:12px;color:var(--text3)">API kaliti kerak yoki xatolik yuz berdi.</div>
-      <button class="cd-ai-btn" onclick="loadCdAI()">Qayta urinish</button>`;
+    const noKey=!localStorage.getItem('bn_gemini_key')&&!_DEFAULT_GEMINI_KEY;
+    el.innerHTML=noKey
+      ?`<div style="padding:14px 16px">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px">AI tahlil uchun Gemini API key kerak (bepul):</div>
+          <input id="cdAiKeyInput" type="text" placeholder="AIza..." style="width:100%;padding:9px 12px;background:var(--surface);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px">
+          <button onclick="const k=document.getElementById('cdAiKeyInput').value.trim();if(k){localStorage.setItem('bn_gemini_key',k);loadCdAI();}"
+            class="cd-ai-btn" style="background:linear-gradient(135deg,rgba(124,92,252,.2),rgba(124,92,252,.08))">Saqlash va tahlil qilish</button>
+        </div>`
+      :`<div style="padding:14px 16px;font-size:12px;color:var(--text3)">Xatolik: ${e.message||'Qayta urinib ko\'ring'}</div>
+        <button class="cd-ai-btn" onclick="loadCdAI()">Qayta urinish</button>`;
   }
 }
 
