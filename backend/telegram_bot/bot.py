@@ -158,6 +158,9 @@ async def _send_startup_posts_to_admin():
 async def on_startup():
     logger.info("Bot ishga tushmoqda...")
 
+    # Middlewarelar — foydalanuvchilarni DB ga saqlash, rate limiting
+    setup_middlewares(dp)
+
     # Core services
     await db.connect(DATABASE_URL)
     await redis_mgr.connect(REDIS_URL)

@@ -99,64 +99,72 @@ async def handle_admin_broadcast(request: web.Request) -> web.Response:
             return web.json_response({"ok": False, "error": "Matn yoki media kerak"}, status=400)
 
         # ── Bot ───────────────────────────────────────────────────────────────
+        from aiogram import Bot as AioBot
+        from aiogram.client.default import DefaultBotProperties
+        from aiogram.enums import ParseMode as AioParseMode
+        _bot_token = os.getenv("BOT_TOKEN", "")
+        if not _bot_token:
+            return web.json_response({"ok": False, "error": "BOT_TOKEN yo'q"}, status=503)
+        bot = AioBot(token=_bot_token,
+                     default=DefaultBotProperties(parse_mode=AioParseMode.HTML))
+
         try:
-            from telegram_bot.bot import dp
-            bot = dp.bot
-        except Exception:
-            return web.json_response({"ok": False, "error": "Bot ulanmagan"}, status=503)
+            # ── Media turini aniqlash & Telegram ga yuklash ───────────────────
+            file_id = None
+            media_type = None   # "photo" | "video"
 
-        # ── Media turini aniqlash ─────────────────────────────────────────────
-        file_id = None
-        media_type = None   # "photo" | "video"
+            if media_bytes:
+                ext = os.path.splitext(media_filename)[1].lower()
+                is_video = ext in (".mp4", ".mov", ".avi", ".mkv", ".webm") or "video" in media_content_type
+                media_type = "video" if is_video else "photo"
 
-        if media_bytes:
-            ext = os.path.splitext(media_filename)[1].lower()
-            is_video = ext in (".mp4", ".mov", ".avi", ".mkv", ".webm") or "video" in media_content_type
-            media_type = "video" if is_video else "photo"
-
-            # Faylni Telegram ga bir marta yuklaymiz (admin ga yuborib file_id olamiz)
-            admin_id = int(os.getenv("ADMIN_ID", "0"))
-            buf = BufferedInputFile(media_bytes, filename=media_filename)
-            try:
+                # Faylni Telegram ga bir marta yuklaymiz — file_id olamiz
+                admin_id = int(os.getenv("ADMIN_ID", "0"))
+                buf = BufferedInputFile(media_bytes, filename=media_filename)
                 if media_type == "photo":
                     msg = await bot.send_photo(admin_id, photo=buf,
-                                               caption=text or None, parse_mode="HTML")
+                                               caption=text or None)
                     file_id = msg.photo[-1].file_id
                 else:
                     msg = await bot.send_video(admin_id, video=buf,
-                                               caption=text or None, parse_mode="HTML")
+                                               caption=text or None)
                     file_id = msg.video.file_id
-            except Exception as e:
-                logger.error(f"Media yuklashda xato: {e}")
-                return web.json_response({"ok": False, "error": f"Media yuklashda xato: {e}"}, status=500)
 
-        # ── Broadcast ─────────────────────────────────────────────────────────
-        user_ids = await db.get_all_active_users()
-        sent = 0
-        failed = 0
+            # ── Foydalanuvchilar ro'yxati ─────────────────────────────────────
+            user_ids = await db.get_all_active_users()
+            if not user_ids:
+                return web.json_response({
+                    "ok": False,
+                    "error": "Foydalanuvchilar DB da yo'q. Bot ni qayta ishga tushiring — "
+                             "foydalanuvchilar /start qilgandan keyin saqlanadi."
+                }, status=400)
 
-        for uid in user_ids:
-            try:
-                if lang != "all":
-                    user = await db.get_user(uid)
-                    if user and user.get("language_code", "uz") != lang:
-                        continue
+            # ── Broadcast ─────────────────────────────────────────────────────
+            sent = 0
+            failed = 0
+            for uid in user_ids:
+                try:
+                    if lang != "all":
+                        user = await db.get_user(uid)
+                        if user and user.get("language_code", "uz") != lang:
+                            continue
 
-                if file_id and media_type == "photo":
-                    await bot.send_photo(uid, photo=file_id,
-                                         caption=text or None, parse_mode="HTML")
-                elif file_id and media_type == "video":
-                    await bot.send_video(uid, video=file_id,
-                                         caption=text or None, parse_mode="HTML")
-                else:
-                    await bot.send_message(uid, text, parse_mode="HTML")
+                    if file_id and media_type == "photo":
+                        await bot.send_photo(uid, photo=file_id, caption=text or None)
+                    elif file_id and media_type == "video":
+                        await bot.send_video(uid, video=file_id, caption=text or None)
+                    else:
+                        await bot.send_message(uid, text)
 
-                sent += 1
-                await asyncio.sleep(0.05)   # flood control ~20 msg/s
-            except Exception:
-                failed += 1
+                    sent += 1
+                    await asyncio.sleep(0.05)   # flood control ~20 msg/s
+                except Exception:
+                    failed += 1
 
-        return web.json_response({"ok": True, "sent": sent, "failed": failed})
+            return web.json_response({"ok": True, "sent": sent, "failed": failed})
+
+        finally:
+            await bot.session.close()
 
     except Exception as e:
         logger.error(f"admin/broadcast xatosi: {e}", exc_info=True)
