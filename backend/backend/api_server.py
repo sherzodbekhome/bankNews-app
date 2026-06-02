@@ -137,6 +137,47 @@ async def handle_metals(request: web.Request) -> web.Response:
         return _json_response({"error": str(e)}, 500, request)
 
 
+async def handle_p2p(request: web.Request) -> web.Response:
+    """Binance P2P USDT/UZS kurslari — server tomonidan CORS muammosiz"""
+    try:
+        payload = {
+            "fiat": "UZS", "page": 1, "rows": 10,
+            "tradeType": request.query.get("type", "BUY"),
+            "asset": "USDT", "countries": [], "proMerchantAds": False,
+            "shieldMerchantAds": False, "filterType": "all",
+            "periods": [], "additionalKycVerifyFilter": 0,
+            "publisherType": None, "payTypes": [], "classifies": ["mass"],
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": _UA,
+            "Referer": "https://p2p.binance.com/",
+        }
+        async with _session() as s:
+            async with s.post(
+                "https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search",
+                json=payload, headers=headers,
+                timeout=aiohttp.ClientTimeout(total=10),
+            ) as r:
+                data = await r.json(content_type=None)
+        ads = data.get("data", [])
+        offers = [
+            {
+                "price": float(ad["adv"]["price"]),
+                "min": float(ad["adv"]["minSingleTransAmount"]),
+                "max": float(ad["adv"]["dynamicMaxSingleTransAmount"]),
+                "nick": ad["advertiser"]["nickName"],
+                "orders": ad["advertiser"]["monthOrderCount"],
+                "rate": round(float(ad["advertiser"]["monthFinishRate"]) * 100, 1),
+            }
+            for ad in ads
+        ]
+        return _json_response({"ok": True, "offers": offers, "type": payload["tradeType"]}, request=request)
+    except Exception as e:
+        logger.error(f"P2P xatosi: {e}")
+        return _json_response({"ok": False, "error": str(e)}, 500, request)
+
+
 async def handle_health(request: web.Request) -> web.Response:
     return _json_response({"status": "ok", "time": datetime.now().isoformat()}, request=request)
 
@@ -148,6 +189,8 @@ def create_app() -> web.Application:
     app.router.add_get("/api/banks",   handle_banks)
     app.router.add_get("/api/crypto",  handle_crypto)
     app.router.add_get("/api/metals",  handle_metals)
+    app.router.add_post("/api/p2p",    handle_p2p)
+    app.router.add_get("/api/p2p",     handle_p2p)
     return app
 
 

@@ -679,32 +679,37 @@ function renderBankTable(){
 let P2P={};
 let _p2pTab='buy'; // 'buy'=user oladi (USDT sotib olish takliflari) | 'sell'=user sotadi
 
+const _P2P_URL='https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search';
+const _P2P_PROXIES=[
+  url=>`https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+  url=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+];
+
 async function _fetchP2PSide(tradeType){
   const body=JSON.stringify({
     asset:'USDT',fiat:'UZS',merchantCheck:false,
     page:1,payTypes:[],publisherType:null,
     rows:5,side:tradeType,tradeType
   });
-  const headers={'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'};
+  const headers={'Content-Type':'application/json'};
 
-  // 1. To'g'ridan-to'g'ri urinish
+  // 1. To'g'ridan-to'g'ri
   try{
-    const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),5000);
-    const r=await fetch('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search',
-      {method:'POST',headers,body,signal:ac.signal});
+    const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),4000);
+    const r=await fetch(_P2P_URL,{method:'POST',headers,body,signal:ac.signal});
     clearTimeout(tid);
     if(r.ok){const d=await r.json();if(d.data?.length) return d.data;}
   }catch(_){}
 
-  // 2. corsproxy.io orqali
-  try{
-    const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),7000);
-    const proxy='https://corsproxy.io/?url='+encodeURIComponent('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search');
-    const r=await fetch(proxy,{method:'POST',headers,body,signal:ac.signal});
-    clearTimeout(tid);
-    if(r.ok){const d=await r.json();if(d.data?.length) return d.data;}
-  }catch(_){}
-
+  // 2. Proxy zanjiri
+  for(const mkProxy of _P2P_PROXIES){
+    try{
+      const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),6000);
+      const r=await fetch(mkProxy(_P2P_URL),{method:'POST',headers,body,signal:ac.signal});
+      clearTimeout(tid);
+      if(r.ok){const d=await r.json();if(d.data?.length) return d.data;}
+    }catch(_){}
+  }
   return null;
 }
 
@@ -2197,6 +2202,11 @@ function setChartCur(cur,btn){
   document.querySelectorAll('.ccbtn').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   updateChartSummary();
+  if(!chartHistory.length){
+    const wrap=document.getElementById('chartWrap');
+    if(wrap) wrap.innerHTML=`<div class="chart-empty" data-i="chart_empty">${tx('chart_empty')}</div>`;
+    return;
+  }
   const wrap=document.getElementById('chartWrap');
   if(chartHistory.length<2){
     wrap.innerHTML=`<div class="chart-empty">${tx('chart_empty')}</div>`;
@@ -2572,7 +2582,7 @@ function _syncAuthUI(){
       btn.innerHTML=ph?`<img src="${ph}" alt="">`:`<div class="auth-hdr-ph">${nm[0].toUpperCase()}</div>`;
     }else{
       btn.classList.remove('logged');
-      btn.innerHTML='👤';
+      btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
     }
   }
   // Profil tab ochiq bo'lsa yangilash
