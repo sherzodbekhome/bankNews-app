@@ -1006,6 +1006,70 @@
 
 </div>
 
+<!-- ── VALYUTA DETAIL FULL-SCREEN PANEL ── -->
+<div class="fullpanel" id="curDetailPanel">
+  <div class="bs-topbar">
+    <button class="bs-back-btn" onclick="closeCurDetail()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    </button>
+    <div class="bs-topbar-info">
+      <div class="bsheet-title" id="cdCurCode">USD</div>
+      <div class="text-dim" id="cdCurFullName">AQSH dollari</div>
+    </div>
+    <div id="cdLiveRate" style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;color:var(--green)"></div>
+  </div>
+  <div class="fullpanel-body" style="padding:0 0 calc(env(safe-area-inset-bottom,16px)+72px)">
+
+    <!-- Kurs va o'zgarish -->
+    <div class="cd-rate-hero">
+      <div class="cd-rate-val" id="cdRateVal">—</div>
+      <div class="cd-rate-change" id="cdRateChange">—</div>
+    </div>
+
+    <!-- Davr tanlash -->
+    <div class="cd-period-tabs">
+      <button class="cd-ptab on" onclick="setCdPeriod(7,this)">7 kun</button>
+      <button class="cd-ptab" onclick="setCdPeriod(14,this)">2 hafta</button>
+      <button class="cd-ptab" onclick="setCdPeriod(30,this)">1 oy</button>
+      <button class="cd-ptab" onclick="setCdPeriod(90,this)">3 oy</button>
+    </div>
+
+    <!-- Shamsimon (candlestick-style) chart -->
+    <div class="cd-chart-wrap">
+      <canvas id="cdChart"></canvas>
+    </div>
+
+    <!-- Min / Max / O'rtacha -->
+    <div class="cd-stats-row" id="cdStatsRow"></div>
+
+    <!-- AI Tahlil -->
+    <div class="cd-ai-wrap">
+      <div class="cd-ai-head">
+        <div class="cd-ai-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="9" cy="17" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+          AI Tahlil
+        </div>
+        <span class="cd-ai-badge">Gemini AI</span>
+      </div>
+      <div id="cdAIContent">
+        <button class="cd-ai-btn" onclick="loadCdAI()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          AI Tahlil qilish
+        </button>
+      </div>
+    </div>
+
+    <!-- Kalkulyatorda hisoblash -->
+    <div style="padding:0 14px 16px">
+      <button class="cd-calc-btn" onclick="closeCurDetail();sendToCalc(_cdCur)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+        Kalkulyatorda hisoblash
+      </button>
+    </div>
+
+  </div>
+</div>
+
 <!-- ── METALLAR FULL-SCREEN PANEL ── -->
 <div class="fullpanel" id="metalsPanel">
   <div class="bs-topbar">

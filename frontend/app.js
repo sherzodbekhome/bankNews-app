@@ -550,7 +550,7 @@ function renderCBU(){
     const pct=i.diff_pct!=null?`${i.diff_pct>0?'+':''}${Number(i.diff_pct).toFixed(2)}%`:'—';
     const cl2=diff2>0?'up':diff2<0?'dn':'nt';
     const spk=_sparklineSVG(c,false);
-    heroHTML=`<div class="cbu-hero-card ${ACCENT[c]||''}" data-sym="${SYM[c]||''}" onclick="sendToCalc('${c}')">
+    heroHTML=`<div class="cbu-hero-card ${ACCENT[c]||''}" data-sym="${SYM[c]||''}" onclick="openCurDetail('${c}')">
       <div class="cbu-hero-top">
         <div class="cbu-hero-flag">${_flagImg(c,36,24)}<span class="cbu-hero-code">${c}</span></div>
         ${badge(diff2,pct)}
@@ -568,7 +568,7 @@ function renderCBU(){
     const pct=i.diff_pct!=null?`${i.diff_pct>0?'+':''}${Number(i.diff_pct).toFixed(2)}%`:'—';
     const cl2=diff2>0?'up':diff2<0?'dn':'nt';
     const spk=_sparklineSVG(c,true);
-    return`<div class="cbu-card ${ACCENT[c]||''}" data-sym="${SYM[c]||''}" onclick="sendToCalc('${c}')">
+    return`<div class="cbu-card ${ACCENT[c]||''}" data-sym="${SYM[c]||''}" onclick="openCurDetail('${c}')">
       <div class="cbu-flag-row">
         <div class="cbu-flag-ico">${_flagImg(c,26,17)}<span style="font-size:9px;font-weight:800;color:var(--ac);margin-left:4px">${c}</span></div>
         ${badge(diff2,pct)}
@@ -3107,6 +3107,134 @@ function setLangOption(lang){
   if(Object.keys(STATE.CRYPTO).length) renderCrypto();
   if(Object.keys(STATE.METALS).length) renderMetals();
   if(Object.keys(STATE.BANK_RATES).length) renderBankTable();
+}
+
+// ── VALYUTA DETAIL ──
+let _cdCur='USD', _cdPeriod=7, _cdChartInst=null;
+
+function openCurDetail(cur){
+  haptic('impact','medium');
+  _cdCur=cur;
+  _cdPeriod=7;
+  document.getElementById('curDetailPanel').classList.add('open');
+  document.getElementById('cdCurCode').textContent=cur;
+  document.getElementById('cdCurFullName').textContent=cname(cur);
+  const rate=STATE.CBU[cur]?.rate;
+  document.getElementById('cdLiveRate').textContent=rate?fmtFull(rate,0)+' so\'m':'';
+  // period tab reset
+  document.querySelectorAll('.cd-ptab').forEach((b,i)=>b.classList.toggle('on',i===0));
+  // AI reset
+  document.getElementById('cdAIContent').innerHTML=`
+    <button class="cd-ai-btn" onclick="loadCdAI()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      AI Tahlil qilish
+    </button>`;
+  renderCdChart();
+  showBackButton(()=>closeCurDetail());
+}
+function closeCurDetail(){
+  document.getElementById('curDetailPanel').classList.remove('open');
+  if(_cdChartInst){_cdChartInst.destroy();_cdChartInst=null;}
+  hideBackButton();
+}
+function setCdPeriod(days,btn){
+  _cdPeriod=days;
+  document.querySelectorAll('.cd-ptab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderCdChart();
+}
+function renderCdChart(){
+  if(_cdChartInst){_cdChartInst.destroy();_cdChartInst=null;}
+  const all=chartHistory.filter(h=>h[_cdCur]!=null);
+  const sliced=all.length>_cdPeriod?all.slice(-_cdPeriod):all;
+  const ctx=document.getElementById('cdChart')?.getContext('2d');
+  if(!ctx||sliced.length<2) return;
+
+  // Shamsimon (candle) data: har kun uchun open=oldingi kun close, close=bugungi
+  const opens=sliced.map((h,i)=>i===0?(sliced[1]?.[_cdCur]||h[_cdCur]):sliced[i-1][_cdCur]);
+  const closes=sliced.map(h=>h[_cdCur]);
+  const labels=sliced.map(h=>h.date.slice(5).replace('-','.'));
+  const colors=closes.map((c,i)=>c>=opens[i]?'rgba(0,214,143,0.85)':'rgba(255,71,87,0.85)');
+  const borders=closes.map((c,i)=>c>=opens[i]?'#00d68f':'#ff4757');
+
+  // Min/max/avg
+  const mn=Math.min(...closes),mx=Math.max(...closes);
+  const avg=closes.reduce((a,b)=>a+b,0)/closes.length;
+  const first=closes[0],last=closes[closes.length-1];
+  const diff=last-first,pct=((diff/first)*100).toFixed(2);
+  const isUp=diff>=0;
+  const col=isUp?'var(--green)':'var(--red)';
+  document.getElementById('cdRateVal').textContent=fmtFull(Math.round(last))+' so\'m';
+  document.getElementById('cdRateChange').innerHTML=`<span style="color:${col}">${isUp?'+':''}${fmtFull(Math.round(diff))} so'm &nbsp;(${isUp?'+':''}${pct}%)</span>`;
+  document.getElementById('cdStatsRow').innerHTML=`
+    <div class="cd-stat"><div class="cd-stat-lbl">Min</div><div class="cd-stat-val">${fmtFull(Math.round(mn))}</div></div>
+    <div class="cd-stat"><div class="cd-stat-lbl">O'rtacha</div><div class="cd-stat-val">${fmtFull(Math.round(avg))}</div></div>
+    <div class="cd-stat"><div class="cd-stat-lbl">Max</div><div class="cd-stat-val">${fmtFull(Math.round(mx))}</div></div>`;
+
+  const padding=Math.max((mx-mn)*0.3,50);
+  _cdChartInst=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        data:closes.map((c,i)=>[Math.min(opens[i],c),Math.max(opens[i],c)]),
+        backgroundColor:colors,
+        borderColor:borders,
+        borderWidth:1,
+        borderRadius:2,
+        barPercentage:0.65,
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      animation:{duration:400},
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        title:ctx=>[ctx[0].label],
+        label:ctx=>{
+          const [lo,hi]=ctx.raw;
+          return `${fmtFull(Math.round(lo))} → ${fmtFull(Math.round(hi))} so'm`;
+        }
+      }}},
+      scales:{
+        x:{ticks:{color:'#6e8aac',font:{size:9},maxRotation:0,maxTicksLimit:8},grid:{display:false}},
+        y:{min:mn-padding,max:mx+padding,
+           ticks:{color:'#6e8aac',font:{size:9},callback:v=>fmtFull(Math.round(v))},
+           grid:{color:'rgba(255,255,255,0.04)'}}
+      }
+    }
+  });
+}
+async function loadCdAI(){
+  const el=document.getElementById('cdAIContent');
+  el.innerHTML='<div style="padding:20px;text-align:center"><div class="spinner" style="margin:0 auto 8px"></div><div style="font-size:12px;color:var(--text3)">Tahlil qilinmoqda...</div></div>';
+  const all=chartHistory.filter(h=>h[_cdCur]!=null);
+  const hist30=all.slice(-30);
+  const cur=STATE.CBU[_cdCur];
+  const sig=calcTrendSignal(_cdCur);
+  const prompt=`O'zbekiston Markaziy Banki ${_cdCur} (${cname(_cdCur)}) valyuta kursi tahlili:
+
+Hozirgi kurs: ${cur?.rate?fmtFull(cur.rate,0):'-'} so'm
+30 kunlik dinamika: ${hist30[0]?.[_cdCur]?fmtFull(hist30[0][_cdCur],0):'-'} → ${hist30[hist30.length-1]?.[_cdCur]?fmtFull(hist30[hist30.length-1][_cdCur],0):'-'} so'm
+7 kunlik o'zgarish: ${sig?.change7!=null?(sig.change7>0?'+':'')+sig.change7.toFixed(2)+'%':'-'}
+3 kunlik o'zgarish: ${sig?.change3!=null?(sig.change3>0?'+':'')+sig.change3.toFixed(2)+'%':'-'}
+
+Quyidagilarni o'zbek tilida qisqa va aniq yozing:
+1. 📊 Kurs tendensiyasi (o'sish/tushish/barqaror) va asosiy sabab
+2. 💡 Amaliy maslahat: hozir sotib olish, sotish yoki kutish kerakmi?
+3. 🔮 Qisqa muddatli prognoz (1-2 hafta)
+
+Javob qisqa bo'lsin, har bir band 1-2 jumladan iborat.`;
+  try{
+    const text=await _callGeminiDirect(prompt);
+    el.innerHTML=`<div class="cd-ai-result">${text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}</div>
+      <button class="cd-ai-btn" style="border-top:1px solid var(--border)" onclick="loadCdAI()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.03-8.8"/></svg>
+        Yangilash
+      </button>`;
+  }catch(e){
+    el.innerHTML=`<div style="padding:14px 16px;font-size:12px;color:var(--text3)">API kaliti kerak yoki xatolik yuz berdi.</div>
+      <button class="cd-ai-btn" onclick="loadCdAI()">Qayta urinish</button>`;
+  }
 }
 
 // ── STAVKA SOLISHTIRISH ──
