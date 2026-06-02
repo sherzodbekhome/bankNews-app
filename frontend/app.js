@@ -1,6 +1,13 @@
 ﻿// ── TELEGRAM ──
 const tg=window.Telegram?.WebApp;
-if(tg){tg.ready();tg.expand()}
+if(tg){
+  tg.ready();
+  tg.expand();
+  // To'liq ekran — yangi Telegram versiyalarida
+  if(typeof tg.requestFullscreen==='function') tg.requestFullscreen();
+  // Yopish tasdiqlash (tasodifiy yopilmasin)
+  tg.enableClosingConfirmation?.();
+}
 
 
 // ── PWA SERVICE WORKER ──
