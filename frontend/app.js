@@ -3003,9 +3003,18 @@ function _tplAdminSection(){
     </div>
     <div class="psec">
       <div class="psec-h"><div class="psec-title">📢 Broadcast Xabar</div></div>
-      <div style="padding:10px 12px 12px">
-        <textarea class="admin-ta" id="bcText" placeholder="Barcha foydalanuvchilarga xabar..."></textarea>
-        <div style="display:flex;gap:8px;margin-top:8px">
+      <div style="padding:10px 12px 14px">
+        <textarea class="admin-ta" id="bcText" placeholder="Matn (ixtiyoriy — rasm/video bilan birga yoki yolg'iz)"></textarea>
+        <input type="file" id="bcMedia" accept="image/*,video/*" style="display:none" onchange="bcPreview()">
+        <div id="bcPreviewBox" style="display:none;margin:8px 0;position:relative;border-radius:10px;overflow:hidden;background:var(--surface);max-height:180px">
+          <img id="bcPreviewImg" style="display:none;width:100%;max-height:180px;object-fit:cover">
+          <video id="bcPreviewVid" style="display:none;width:100%;max-height:180px;object-fit:cover" muted playsinline></video>
+          <button onclick="bcClear()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:1">×</button>
+        </div>
+        <button onclick="document.getElementById('bcMedia').click()" style="width:100%;padding:9px;margin-bottom:8px;background:var(--surface);border:1.5px dashed var(--glass-border);border-radius:10px;color:var(--text2);font-size:12px;cursor:pointer">
+          📎 Rasm yoki video biriktirish
+        </button>
+        <div style="display:flex;gap:8px">
           <select class="asel" id="bcLang" style="flex:1">
             <option value="all">Barcha tillar</option>
             <option value="uz">Faqat O'zbekcha</option>
@@ -3049,23 +3058,58 @@ async function loadAdminStats(){
   }catch(e){}
 }
 
+function bcPreview(){
+  const inp=document.getElementById('bcMedia');
+  const file=inp?.files?.[0];
+  if(!file) return;
+  const box=document.getElementById('bcPreviewBox');
+  const img=document.getElementById('bcPreviewImg');
+  const vid=document.getElementById('bcPreviewVid');
+  const url=URL.createObjectURL(file);
+  if(file.type.startsWith('video/')){
+    img.style.display='none';vid.style.display='block';
+    vid.src=url;
+  }else{
+    vid.style.display='none';img.style.display='block';
+    img.src=url;
+  }
+  if(box) box.style.display='block';
+}
+
+function bcClear(){
+  const inp=document.getElementById('bcMedia');
+  if(inp) inp.value='';
+  const img=document.getElementById('bcPreviewImg');
+  const vid=document.getElementById('bcPreviewVid');
+  if(img){img.src='';img.style.display='none';}
+  if(vid){vid.src='';vid.style.display='none';}
+  const box=document.getElementById('bcPreviewBox');
+  if(box) box.style.display='none';
+}
+
 async function sendBroadcast(){
   if(!fbUser||!isAdmin()) return;
-  const txt=document.getElementById('bcText')?.value?.trim();
-  if(!txt){alert('Xabar kiriting');return;}
+  const txt=document.getElementById('bcText')?.value?.trim()||'';
+  const mediaFile=document.getElementById('bcMedia')?.files?.[0];
+  if(!txt&&!mediaFile){alert('Matn yoki media fayl kiriting');return;}
   const lang=document.getElementById('bcLang')?.value||'all';
   const st=document.getElementById('bcStatus');
   if(st) st.textContent='Yuborilmoqda...';
   try{
     const tok=await fbUser.getIdToken();
-    const r=await fetch('/api/admin/broadcast',{
-      method:'POST',
-      headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},
-      body:JSON.stringify({text:txt,lang})
-    });
+    let r;
+    if(mediaFile){
+      const fd=new FormData();
+      if(txt) fd.append('text',txt);
+      fd.append('lang',lang);
+      fd.append('media',mediaFile,mediaFile.name);
+      r=await fetch('/api/admin/broadcast',{method:'POST',headers:{Authorization:'Bearer '+tok},body:fd});
+    }else{
+      r=await fetch('/api/admin/broadcast',{method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},body:JSON.stringify({text:txt,lang})});
+    }
     const d=await r.json();
-    if(st) st.textContent=d.ok?`✅ ${d.sent||0} ta xabar yuborildi`:'❌ '+(d.error||'Xato');
-    if(d.ok){haptic('notify','success');const el=document.getElementById('bcText');if(el)el.value='';}
+    if(st) st.textContent=d.ok?`✅ ${d.sent||0} ta yuborildi`+((d.failed>0)?` (${d.failed} xato)`:''):'❌ '+(d.error||'Xato');
+    if(d.ok){haptic('notify','success');document.getElementById('bcText').value='';bcClear();}
   }catch(e){if(st) st.textContent='❌ Ulanish xatosi';}
 }
 

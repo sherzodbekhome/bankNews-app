@@ -63,38 +63,96 @@ async def handle_admin_stats(request: web.Request) -> web.Response:
 
 
 async def handle_admin_broadcast(request: web.Request) -> web.Response:
-    """POST /api/admin/broadcast — {"text": "...", "lang": "all|uz|ru"}"""
+    """POST /api/admin/broadcast
+    JSON:      {"text":"...","lang":"all|uz|ru"}
+    Multipart: text=..., lang=..., media=<file>  (rasm yoki video)
+    """
     admin = await _verify_admin(request)
     if not admin:
         return web.json_response({"ok": False, "error": "Ruxsat yo'q"}, status=403)
 
     try:
-        body = await request.json()
-        text = body.get("text", "").strip()
-        lang = body.get("lang", "all")
-        if not text:
-            return web.json_response({"ok": False, "error": "Xabar matni kerak"}, status=400)
+        import asyncio, os
+        from aiogram.types import BufferedInputFile
 
-        # Bot instance'ni import qilamiz (aylanma import — faqat shu yerda)
+        # ── Ma'lumotlarni o'qish (JSON yoki multipart) ────────────────────────
+        media_bytes = None
+        media_filename = None
+        media_content_type = None
+
+        ct = request.content_type or ""
+        if "multipart" in ct:
+            data = await request.post()
+            text = (data.get("text") or "").strip()
+            lang = data.get("lang") or "all"
+            mf = data.get("media")
+            if mf and hasattr(mf, "file"):
+                media_bytes = mf.file.read()
+                media_filename = mf.filename or "media"
+                media_content_type = mf.content_type or ""
+        else:
+            body = await request.json()
+            text = (body.get("text") or "").strip()
+            lang = body.get("lang") or "all"
+
+        if not text and not media_bytes:
+            return web.json_response({"ok": False, "error": "Matn yoki media kerak"}, status=400)
+
+        # ── Bot ───────────────────────────────────────────────────────────────
         try:
             from telegram_bot.bot import dp
             bot = dp.bot
         except Exception:
             return web.json_response({"ok": False, "error": "Bot ulanmagan"}, status=503)
 
+        # ── Media turini aniqlash ─────────────────────────────────────────────
+        file_id = None
+        media_type = None   # "photo" | "video"
+
+        if media_bytes:
+            ext = os.path.splitext(media_filename)[1].lower()
+            is_video = ext in (".mp4", ".mov", ".avi", ".mkv", ".webm") or "video" in media_content_type
+            media_type = "video" if is_video else "photo"
+
+            # Faylni Telegram ga bir marta yuklaymiz (admin ga yuborib file_id olamiz)
+            admin_id = int(os.getenv("ADMIN_ID", "0"))
+            buf = BufferedInputFile(media_bytes, filename=media_filename)
+            try:
+                if media_type == "photo":
+                    msg = await bot.send_photo(admin_id, photo=buf,
+                                               caption=text or None, parse_mode="HTML")
+                    file_id = msg.photo[-1].file_id
+                else:
+                    msg = await bot.send_video(admin_id, video=buf,
+                                               caption=text or None, parse_mode="HTML")
+                    file_id = msg.video.file_id
+            except Exception as e:
+                logger.error(f"Media yuklashda xato: {e}")
+                return web.json_response({"ok": False, "error": f"Media yuklashda xato: {e}"}, status=500)
+
+        # ── Broadcast ─────────────────────────────────────────────────────────
         user_ids = await db.get_all_active_users()
         sent = 0
         failed = 0
-        import asyncio
+
         for uid in user_ids:
             try:
                 if lang != "all":
                     user = await db.get_user(uid)
                     if user and user.get("language_code", "uz") != lang:
                         continue
-                await bot.send_message(uid, text, parse_mode="HTML")
+
+                if file_id and media_type == "photo":
+                    await bot.send_photo(uid, photo=file_id,
+                                         caption=text or None, parse_mode="HTML")
+                elif file_id and media_type == "video":
+                    await bot.send_video(uid, video=file_id,
+                                         caption=text or None, parse_mode="HTML")
+                else:
+                    await bot.send_message(uid, text, parse_mode="HTML")
+
                 sent += 1
-                await asyncio.sleep(0.05)  # flood control
+                await asyncio.sleep(0.05)   # flood control ~20 msg/s
             except Exception:
                 failed += 1
 

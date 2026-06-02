@@ -73,20 +73,40 @@ async def handle_admin_stats(request):
 # ── Admin: broadcast ──────────────────────────────────────────────────────────
 async def handle_admin_broadcast(request):
     try:
-        data = await request.json()
-        text = data.get("text", "").strip()
-        if not text:
-            return web.Response(text=json.dumps({"ok": False, "error": "Xabar bo'sh"}), headers=H)
+        import os
+        ct = request.content_type or ""
+        if "multipart" in ct:
+            data = await request.post()
+            text = (data.get("text") or "").strip()
+            media = data.get("media")
+            has_media = media and hasattr(media, "file")
+        else:
+            data = await request.json()
+            text = (data.get("text") or "").strip()
+            has_media = False
+
+        if not text and not has_media:
+            return web.Response(text=json.dumps({"ok": False, "error": "Matn yoki media kerak"}), headers=H)
 
         from core.config import BOT_TOKEN, ADMIN_ID
         from aiogram import Bot
         from aiogram.enums import ParseMode
         from aiogram.client.default import DefaultBotProperties
+        from aiogram.types import BufferedInputFile
 
         bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
         try:
-            await bot.send_message(ADMIN_ID, f"📢 <b>Test broadcast:</b>\n\n{text}")
-            result = {"ok": True, "sent": 1, "note": "Lokal: faqat adminga yuborildi"}
+            if has_media:
+                ext = os.path.splitext(media.filename or "")[1].lower()
+                is_video = ext in (".mp4",".mov",".avi",".mkv",".webm") or "video" in (media.content_type or "")
+                buf = BufferedInputFile(media.file.read(), filename=media.filename or "media")
+                if is_video:
+                    await bot.send_video(ADMIN_ID, video=buf, caption=f"📢 <b>Test broadcast:</b>\n\n{text}" if text else None)
+                else:
+                    await bot.send_photo(ADMIN_ID, photo=buf, caption=f"📢 <b>Test broadcast:</b>\n\n{text}" if text else None)
+            else:
+                await bot.send_message(ADMIN_ID, f"📢 <b>Test broadcast:</b>\n\n{text}")
+            result = {"ok": True, "sent": 1, "failed": 0, "note": "Lokal: faqat adminga yuborildi"}
         finally:
             await bot.session.close()
 
