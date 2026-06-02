@@ -2124,6 +2124,42 @@ body::after{
 .brc-best{font-size:8px;font-weight:700;color:var(--gold);background:rgba(212,168,67,.14);border:1px solid rgba(212,168,67,.28);border-radius:4px;padding:1px 5px;flex-shrink:0;white-space:nowrap}
 .brc-best.sell{color:var(--green);background:rgba(34,196,122,.1);border-color:rgba(34,196,122,.28)}
 
+/* ═══ KRIPTO TOP 250 ═══ */
+.crypto-search-wrap{padding:4px 0 12px;position:sticky;top:0;z-index:10;background:var(--bg)}
+.crypto-search{
+  width:100%;box-sizing:border-box;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:10px 14px;
+  color:var(--text);font-size:14px;outline:none;
+  transition:border-color .15s;
+}
+.crypto-search:focus{border-color:var(--gold)}
+.crypto-search::placeholder{color:var(--text3)}
+.citem{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 2px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .12s;
+}
+.citem:last-child{border-bottom:none}
+.citem:active{background:var(--surface)}
+.crank{width:24px;font-size:11px;color:var(--text3);text-align:right;flex-shrink:0;font-weight:600}
+.cico-s{
+  width:36px;height:36px;border-radius:50%;overflow:hidden;
+  flex-shrink:0;background:var(--surface);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:var(--text2);
+}
+.cico-s img{width:100%;height:100%;object-fit:cover}
+.cname-b{flex:1;min-width:0}
+.cname-full{font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csym-lbl{font-size:11px;color:var(--text3);font-weight:500}
+.cprice-b{text-align:right;flex-shrink:0}
+.cprice-val{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--text)}
+.cpct{font-size:11px;font-weight:600}
+.cpct.up{color:var(--green)}
+.cpct.dn{color:var(--red)}
+.cpct.nt{color:var(--text3)}
+
 /* ═══ CBU LIST (renderCBU) ═══ */
 .hero-scroll{display:flex;flex-direction:column;gap:0;margin-bottom:4px}
 .hero-card-label{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:4px}

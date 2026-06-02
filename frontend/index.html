@@ -186,8 +186,23 @@
     </div>
   </div>
 
-  <!-- ── KRIPTO (placeholder — tarkib cryptoPanel da) ── -->
-  <div class="sec" id="s1"></div>
+  <!-- ── KRIPTO ── -->
+  <div class="sec" id="s1">
+    <div class="section-pad">
+      <!-- Qidiruv -->
+      <div class="crypto-search-wrap">
+        <input id="csearchInput" class="crypto-search" type="text" placeholder="🔍 Koin qidirish..." oninput="renderCrypto()" autocomplete="off" spellcheck="false">
+      </div>
+      <!-- Yuklanish -->
+      <div id="c-load" style="padding:40px;text-align:center;color:var(--text3);font-size:13px">
+        ⏳ Yuklanmoqda...
+      </div>
+      <!-- Ro'yxat -->
+      <div id="c-body" style="display:none">
+        <div id="cgrid"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- ── KALKUL ── -->
   <div class="sec" id="s2">

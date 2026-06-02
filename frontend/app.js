@@ -295,6 +295,7 @@ function goTab(i){
 
   hideBackButton();
   updateMainButton(i);
+  if(i===1){ if(Object.keys(STATE.CRYPTO).length) renderCrypto(); else loadCrypto(); }
   if(i===2) doCalc();
   if(i===3) renderPortfolio();
   if(i===5) renderProfileTab();
@@ -851,62 +852,36 @@ function _renderP2POffers(){
 }
 
 // ── STATE.CRYPTO ──
+const _CRYPTO_API='https://banknews-bot.onrender.com/api/crypto/top';
+
 async function loadCrypto(){
   try{
-    let crypto={};
+    const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),10000);
+    const usdRate=STATE.USD_UZS||12500;
+    const r=await fetch(`${_CRYPTO_API}?usd_rate=${usdRate}`,{signal:ac.signal});
+    clearTimeout(tid);
+    if(!r.ok) throw new Error('API '+r.status);
+    const json=await r.json();
+    if(!json.ok||!Array.isArray(json.data)) throw new Error('bad response');
 
-    // 1. CoinGecko coins/markets — top 50, rank + logo + narx hammasi birda
-    try{
-      const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),9000);
-      const r=await fetch(
-        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h',
-        {signal:ac.signal}
-      );
-      clearTimeout(tid);
-      if(r.ok){
-        const arr=await r.json();
-        if(Array.isArray(arr)&&arr.length>10){
-          arr.forEach(c=>{
-            const sym=c.symbol.toUpperCase();
-            crypto[sym]={
-              rank:c.market_cap_rank||999,
-              name:c.name,
-              image:c.image,
-              cgId:c.id,
-              market_cap:c.market_cap,
-              volume:c.total_volume,
-              supply:c.circulating_supply,
-              ath:c.ath,
-              usd:c.current_price||0,
-              change:c.price_change_percentage_24h||0,
-              uzs:(c.current_price||0)*STATE.USD_UZS
-            };
-          });
-        }
-      }
-    }catch(_){}
+    const crypto={};
+    json.data.forEach(c=>{
+      const sym=(c.symbol||'').toUpperCase();
+      if(!sym) return;
+      crypto[sym]={
+        rank:  c.rank||9999,
+        name:  c.name||sym,
+        image: c.image||'',
+        cgId:  c.id||'',
+        usd:   c.price||0,
+        change:c.change||0,
+        uzs:   c.uzs||(c.price||0)*usdRate,
+        mcap:  c.mcap||0,
+        volume:c.volume||0,
+      };
+    });
 
-    // 2. Fallback: Binance — agar CoinGecko ishlamasa
-    if(Object.keys(crypto).length<5){
-      const PAIRS={BTC:'BTCUSDT',ETH:'ETHUSDT',BNB:'BNBUSDT',SOL:'SOLUSDT',TON:'TONUSDT'};
-      try{
-        const _ac=new AbortController(),_tid=setTimeout(()=>_ac.abort(),6000);
-        const r=await fetch(
-          `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(JSON.stringify(Object.values(PAIRS)))}`,
-          {signal:_ac.signal}
-        );
-        clearTimeout(_tid);
-        const arr=await r.json();
-        if(Array.isArray(arr)) arr.forEach(t=>{
-          const sym=Object.keys(PAIRS).find(k=>PAIRS[k]===t.symbol);
-          if(sym){const usd=parseFloat(t.lastPrice)||0,chg=parseFloat(t.priceChangePercent)||0;
-            if(usd>0) crypto[sym]={rank:999,name:sym,image:CLOGO[sym]||'',usd,change:chg,uzs:usd*STATE.USD_UZS};}
-        });
-      }catch(_){}
-      if(!crypto.USDT) crypto.USDT={rank:3,name:'Tether',image:CLOGO.USDT||'',usd:1.0,change:0.01,uzs:STATE.USD_UZS};
-    }
-
-    if(Object.keys(crypto).length<2) throw new Error('all sources failed');
+    if(Object.keys(crypto).length<5) throw new Error('too few coins');
     STATE.CRYPTO=crypto;
     renderCrypto();
   }catch(e){

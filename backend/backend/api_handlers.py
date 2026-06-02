@@ -317,6 +317,56 @@ class MetalsHandler:
 
 
 
+# ── Top 250 Kripto ────────────────────────────────────────────────────────────
+
+class CryptoTopHandler:
+    """Top 250 kriptovalyuta market cap bo'yicha — server tomonidan keshlangan"""
+    _URL = (
+        "https://api.coingecko.com/api/v3/coins/markets"
+        "?vs_currency=usd&order=market_cap_desc"
+        "&per_page=250&page=1&sparkline=false"
+        "&price_change_percentage=24h"
+    )
+    _cache: list = []
+    _cache_ts: float = 0.0
+    _CACHE_TTL = 300  # 5 daqiqa
+
+    @classmethod
+    async def get_top(cls) -> Optional[list]:
+        import time
+        now = time.time()
+        if cls._cache and (now - cls._cache_ts) < cls._CACHE_TTL:
+            return cls._cache
+        try:
+            async with _session() as s:
+                async with s.get(cls._URL, headers={"Accept": "application/json"}) as r:
+                    if r.status != 200:
+                        logger.warning(f"CoinGecko top250 status: {r.status}")
+                        return cls._cache or None
+                    data = await r.json(content_type=None)
+            if not isinstance(data, list) or len(data) < 10:
+                return cls._cache or None
+            result = []
+            for c in data:
+                result.append({
+                    "id":     c.get("id", ""),
+                    "symbol": (c.get("symbol") or "").upper(),
+                    "name":   c.get("name", ""),
+                    "image":  c.get("image", ""),
+                    "rank":   c.get("market_cap_rank") or 9999,
+                    "price":  c.get("current_price") or 0,
+                    "change": round(c.get("price_change_percentage_24h") or 0, 2),
+                    "mcap":   c.get("market_cap") or 0,
+                    "volume": c.get("total_volume") or 0,
+                })
+            cls._cache = result
+            cls._cache_ts = now
+            return result
+        except Exception as e:
+            logger.error(f"CryptoTopHandler xatosi: {e}")
+            return cls._cache or None
+
+
 # ── DataCollector ─────────────────────────────────────────────────────────────
 
 class DataCollector:

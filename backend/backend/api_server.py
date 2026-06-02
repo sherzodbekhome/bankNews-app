@@ -17,7 +17,7 @@ from aiohttp import web
 
 import os
 
-from .api_handlers import BankUzHandler, CBUHandler, CryptoHandler, MetalsHandler
+from .api_handlers import BankUzHandler, CBUHandler, CryptoHandler, MetalsHandler, CryptoTopHandler
 
 logger = logging.getLogger(__name__)
 
@@ -178,19 +178,44 @@ async def handle_p2p(request: web.Request) -> web.Response:
         return _json_response({"ok": False, "error": str(e)}, 500, request)
 
 
+async def handle_crypto_top(request: web.Request) -> web.Response:
+    """Top 250 kripto — server tomonidan keshlangan"""
+    try:
+        data = await CryptoTopHandler.get_top()
+        if not data:
+            return _json_response({"error": "Crypto top unavailable"}, 503, request)
+        usd_rate = request.query.get("usd_rate")
+        result = []
+        for c in data:
+            item = dict(c)
+            if usd_rate:
+                item["uzs"] = round(c["price"] * float(usd_rate), 0)
+            result.append(item)
+        return _json_response({
+            "ok": True,
+            "count": len(result),
+            "data": result,
+            "updated": datetime.now().isoformat(),
+        }, request=request)
+    except Exception as e:
+        logger.error(f"API /crypto/top xatosi: {e}")
+        return _json_response({"error": str(e)}, 500, request)
+
+
 async def handle_health(request: web.Request) -> web.Response:
     return _json_response({"status": "ok", "time": datetime.now().isoformat()}, request=request)
 
 
 def create_app() -> web.Application:
     app = web.Application()
-    app.router.add_get("/health",      handle_health)
-    app.router.add_get("/api/rates",   handle_rates)
-    app.router.add_get("/api/banks",   handle_banks)
-    app.router.add_get("/api/crypto",  handle_crypto)
-    app.router.add_get("/api/metals",  handle_metals)
-    app.router.add_post("/api/p2p",    handle_p2p)
-    app.router.add_get("/api/p2p",     handle_p2p)
+    app.router.add_get("/health",          handle_health)
+    app.router.add_get("/api/rates",       handle_rates)
+    app.router.add_get("/api/banks",       handle_banks)
+    app.router.add_get("/api/crypto",      handle_crypto)
+    app.router.add_get("/api/crypto/top",  handle_crypto_top)
+    app.router.add_get("/api/metals",      handle_metals)
+    app.router.add_post("/api/p2p",        handle_p2p)
+    app.router.add_get("/api/p2p",         handle_p2p)
     return app
 
 
