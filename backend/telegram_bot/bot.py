@@ -264,12 +264,7 @@ async def _run_webhook():
     # AI route
     app.router.add_get("/api/ai/analyze", handle_ai_analyze)
 
-    # Webhook
-    await bot.set_webhook(full_webhook, drop_pending_updates=True)
-    logger.info(f"Webhook o'rnatildi: {full_webhook}")
-
     SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=WEBHOOK_PATH)
-    setup_application(app, dp, bot=bot)
 
     port = int(os.environ.get("PORT", 8080))
     runner = web.AppRunner(app)
@@ -277,6 +272,10 @@ async def _run_webhook():
     site = web.TCPSite(runner, "0.0.0.0", port)
     await site.start()
     logger.info(f"Server ishlamoqda: http://0.0.0.0:{port}")
+
+    # Server to'liq ishga tushgandan keyin webhook o'rnatish
+    await bot.set_webhook(full_webhook, drop_pending_updates=True)
+    logger.info(f"Webhook o'rnatildi: {full_webhook}")
 
     # Sonsiz kutish — signal kelguncha
     stop_event = asyncio.Event()
