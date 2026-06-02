@@ -46,30 +46,34 @@ const STATE = {
 // ── HAPTIC ──
 function haptic(type='impact',style='light'){
   if(!tg?.HapticFeedback) return;
-  if(type==='impact') tg.HapticFeedback.impactOccurred(style);
-  else if(type==='notify') tg.HapticFeedback.notificationOccurred(style);
-  else if(type==='select') tg.HapticFeedback.selectionChanged();
+  try{
+    if(type==='impact') tg.HapticFeedback.impactOccurred(style);
+    else if(type==='notify') tg.HapticFeedback.notificationOccurred(style);
+    else if(type==='select') tg.HapticFeedback.selectionChanged();
+  }catch(e){}
 }
 
 // ── MAIN / BACK BUTTON ──
 
 function updateMainButton(tab){
   if(!tg?.MainButton) return;
-  const mb=tg.MainButton;
-  if(STATE._mbHandler){mb.offClick(STATE._mbHandler);STATE._mbHandler=null;}
-  if(tab===2){
-    mb.setParams({text:'📋 Natijani nusxalash',color:'#d4a843',text_color:'#000000'});
-    mb.show();
-    STATE._mbHandler=()=>{haptic('notify','success');copyResult();};
-    mb.onClick(STATE._mbHandler);
-  }else if(tab===4){
-    mb.setParams({text:'＋ Aktiv qo\'shish',color:'#d4a843',text_color:'#000000'});
-    mb.show();
-    STATE._mbHandler=()=>{haptic('impact','medium');togglePortForm();};
-    mb.onClick(STATE._mbHandler);
-  }else{
-    mb.hide();
-  }
+  try{
+    const mb=tg.MainButton;
+    if(STATE._mbHandler){mb.offClick(STATE._mbHandler);STATE._mbHandler=null;}
+    if(tab===2){
+      mb.setParams({text:'📋 Natijani nusxalash',color:'#d4a843',text_color:'#000000'});
+      mb.show();
+      STATE._mbHandler=()=>{haptic('notify','success');copyResult();};
+      mb.onClick(STATE._mbHandler);
+    }else if(tab===4){
+      mb.setParams({text:'＋ Aktiv qo\'shish',color:'#d4a843',text_color:'#000000'});
+      mb.show();
+      STATE._mbHandler=()=>{haptic('impact','medium');togglePortForm();};
+      mb.onClick(STATE._mbHandler);
+    }else{
+      mb.hide();
+    }
+  }catch(e){}
 }
 
 let _uiBackFn=null;
@@ -79,10 +83,12 @@ function showBackButton(handler){
   const b=document.getElementById('uiBackBtn');
   if(b) b.style.display='flex';
   if(!tg?.BackButton) return;
-  if(STATE._bbHandler){tg.BackButton.offClick(STATE._bbHandler);STATE._bbHandler=null;}
-  STATE._bbHandler=handler;
-  tg.BackButton.onClick(STATE._bbHandler);
-  tg.BackButton.show();
+  try{
+    if(STATE._bbHandler){tg.BackButton.offClick(STATE._bbHandler);STATE._bbHandler=null;}
+    STATE._bbHandler=handler;
+    tg.BackButton.onClick(STATE._bbHandler);
+    tg.BackButton.show();
+  }catch(e){}
 }
 
 function hideBackButton(){
@@ -90,8 +96,10 @@ function hideBackButton(){
   const b=document.getElementById('uiBackBtn');
   if(b) b.style.display='none';
   if(!tg?.BackButton) return;
-  if(STATE._bbHandler){tg.BackButton.offClick(STATE._bbHandler);STATE._bbHandler=null;}
-  tg.BackButton.hide();
+  try{
+    if(STATE._bbHandler){tg.BackButton.offClick(STATE._bbHandler);STATE._bbHandler=null;}
+    tg.BackButton.hide();
+  }catch(e){}
 }
 
 // ── STATE ──
@@ -225,7 +233,7 @@ function applyTheme(){
   document.getElementById('themeSvg').innerHTML=eff==='dark'
     ?'<path d="M17 12.5A7 7 0 0 1 7.5 3a7 7 0 1 0 9.5 9.5z"/>'
     :'<circle cx="10" cy="10" r="4"/><line x1="10" y1="1" x2="10" y2="3"/><line x1="10" y1="17" x2="10" y2="19"/><line x1="1" y1="10" x2="3" y2="10"/><line x1="17" y1="10" x2="19" y2="10"/><line x1="3.5" y1="3.5" x2="5" y2="5"/><line x1="15" y1="15" x2="16.5" y2="16.5"/><line x1="16.5" y1="3.5" x2="15" y2="5"/><line x1="5" y1="15" x2="3.5" y2="16.5"/>';
-  if(tg){tg.setHeaderColor(eff==='dark'?'#090e1c':'#f5f7fc');tg.setBackgroundColor(eff==='dark'?'#090e1c':'#f5f7fc')}
+  if(tg){try{tg.setHeaderColor(eff==='dark'?'#090e1c':'#f5f7fc');}catch(e){}try{tg.setBackgroundColor(eff==='dark'?'#090e1c':'#f5f7fc');}catch(e){}}
   const lv=THEME_LABELS[STATE.THEME]||THEME_LABELS.dark;
   const lbl=document.getElementById('sozThemeLbl');if(lbl)lbl.textContent=lv;
   const val=document.getElementById('sozThemeVal');if(val)val.textContent=lv;
@@ -3543,5 +3551,5 @@ function _aiShowError(root,msg){
     </div>`;
 }
 
-// Firebase ni dastur boshlanganda ishga tushirish
-_initFB();
+// Firebase ni deferred scripts yuklanganidan keyin ishga tushirish
+window.addEventListener('load',()=>{ _initFB(); });
