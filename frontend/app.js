@@ -294,7 +294,7 @@ const cname=c=>(NM[STATE.LANG]||NM.uz)[c]||c;
 const mname=s=>(MNAME[STATE.LANG]||MNAME.uz)[s]||s;
 
 // ── API ──
-const BANKS_URL = 'https://raw.githubusercontent.com/sherzodbekhome/bankNews-app/main/banks_data.json';
+const BANKS_URL = 'https://raw.githubusercontent.com/sherzodbekhome/bankNews-app/main/backend/banks_data.json';
 
 
 // bank.uz HTML ni brauzerda parse qilish (fetch_banks.py dagi Python logikasi JS da)
