@@ -2109,4 +2109,30 @@ body::after{
 .brc-rate-div{width:1px;height:14px;background:var(--border);flex-shrink:0}
 .brc-best{font-size:8px;font-weight:700;color:var(--gold);background:rgba(212,168,67,.14);border:1px solid rgba(212,168,67,.28);border-radius:4px;padding:1px 5px;flex-shrink:0;white-space:nowrap}
 .brc-best.sell{color:var(--green);background:rgba(34,196,122,.1);border-color:rgba(34,196,122,.28)}
+
+/* ═══ CBU LIST (renderCBU) ═══ */
+.hero-scroll{display:flex;flex-direction:column;gap:0;margin-bottom:4px}
+.hero-card-label{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:4px}
+.hero-card-val{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:800;color:var(--text);line-height:1;margin-bottom:4px}
+.hero-card-sub{font-size:11px;color:var(--text3);margin-bottom:6px}
+.hero-card-change{font-size:12px;font-weight:700}
+.hero-card-change.up{color:var(--red)}
+.hero-card-change.dn{color:var(--green)}
+.hero-card-change.nt{color:var(--text3)}
+.cbu-list-section{margin-top:8px}
+.cbu-list-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:0 2px 8px}
+.cbu-item{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--card);cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s}
+.cbu-item:first-child{border-radius:var(--r) var(--r) 0 0}
+.cbu-item:last-child{border-bottom:none;border-radius:0 0 var(--r) var(--r)}
+.cbu-item:active{background:var(--surface)}
+.cbu-flag{width:36px;height:36px;flex-shrink:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.cbu-name{flex:1;min-width:0}
+.cbu-name-code{font-size:14px;font-weight:800;color:var(--text);line-height:1.2}
+.cbu-name-full{font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cbu-right{text-align:right;flex-shrink:0}
+.cbu-rate{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:var(--text);line-height:1.2}
+.cbu-diff{font-size:11px;font-weight:600}
+.cbu-diff.up{color:var(--red)}
+.cbu-diff.dn{color:var(--green)}
+.cbu-diff.nt{color:var(--text3)}
 .brc-chev{font-size:16px;color:var(--border2);flex-shrink:0}
