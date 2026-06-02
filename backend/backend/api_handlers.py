@@ -155,62 +155,84 @@ class BankUzHandler:
 # ── CoinGecko (kripto) ────────────────────────────────────────────────────────
 
 class CryptoHandler:
-    _URL = (
+    # Binance — asosiy manba (kalitsiz, ishonchli)
+    _BINANCE_URL = "https://api.binance.com/api/v3/ticker/24hr"
+    _BINANCE_SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "TONUSDT"]
+    _BINANCE_MAP = {
+        "BTCUSDT": "BTC",
+        "ETHUSDT": "ETH",
+        "SOLUSDT": "SOL",
+        "TONUSDT": "TON",
+    }
+    # CoinGecko — zaxira manba
+    _CG_URL = (
         "https://api.coingecko.com/api/v3/simple/price"
-        "?ids=bitcoin,ethereum,solana,the-open-network,tether"
-        "&vs_currencies=usd"
-        "&include_24hr_change=true"
-        "&include_market_cap=false"
+        "?ids=bitcoin,ethereum,solana,the-open-network"
+        "&vs_currencies=usd&include_24hr_change=true"
     )
-    # Coingecko ID → ticker
-    _MAP = {
-        "bitcoin":          "BTC",
-        "ethereum":         "ETH",
-        "solana":           "SOL",
-        "the-open-network": "TON",
-        "tether":           "USDT",
+    _CG_MAP = {
+        "bitcoin": "BTC", "ethereum": "ETH",
+        "solana": "SOL", "the-open-network": "TON",
     }
 
     @staticmethod
+    def _decimals(p: float) -> int:
+        if p >= 100: return 0
+        if p >= 1:   return 2
+        if p >= 0.01: return 4
+        return 6
+
+    @staticmethod
     async def get_crypto_prices() -> Optional[Dict]:
-        """
-        {
-          "BTC": {"price": 68500.0, "change_24h": +2.3},
-          "ETH": {...},
-          ...
-        }
-        """
+        # 1) Binance
+        try:
+            params = {"symbols": str(CryptoHandler._BINANCE_SYMBOLS).replace("'", '"')}
+            async with _session() as s:
+                async with s.get(CryptoHandler._BINANCE_URL, params=params) as r:
+                    if r.status == 200:
+                        data = await r.json(content_type=None)
+                        result = {}
+                        for item in data:
+                            sym = item.get("symbol", "")
+                            ticker = CryptoHandler._BINANCE_MAP.get(sym)
+                            if not ticker:
+                                continue
+                            p = float(item.get("lastPrice", 0))
+                            ch = float(item.get("priceChangePercent", 0))
+                            if p:
+                                result[ticker] = {
+                                    "price": round(p, CryptoHandler._decimals(p)),
+                                    "change_24h": round(ch, 2),
+                                }
+                        result["USDT"] = {"price": 1.0, "change_24h": 0.0}
+                        if result:
+                            return result
+        except Exception as e:
+            logger.warning(f"Binance crypto xatosi: {e}")
+
+        # 2) CoinGecko — zaxira
         try:
             async with _session() as s:
-                async with s.get(CryptoHandler._URL) as r:
-                    if r.status != 200:
-                        return None
-                    raw = await r.json(content_type=None)
-
-            result = {}
-            for coin_id, ticker in CryptoHandler._MAP.items():
-                item = raw.get(coin_id, {})
-                price  = item.get("usd", 0)
-                change = item.get("usd_24h_change", 0)
-                if price:
-                    p = float(price)
-                    # Narx formatini aniqlash: katta — yaxlitroq, kichik — to'liqroq
-                    if p >= 100:
-                        decimals = 0
-                    elif p >= 1:
-                        decimals = 2
-                    elif p >= 0.01:
-                        decimals = 4
-                    else:
-                        decimals = 6
-                    result[ticker] = {
-                        "price":     round(p, decimals),
-                        "change_24h": round(float(change or 0), 2),
-                    }
-            return result or None
+                async with s.get(CryptoHandler._CG_URL) as r:
+                    if r.status == 200:
+                        raw = await r.json(content_type=None)
+                        result = {}
+                        for coin_id, ticker in CryptoHandler._CG_MAP.items():
+                            item = raw.get(coin_id, {})
+                            p = float(item.get("usd", 0))
+                            ch = float(item.get("usd_24h_change", 0))
+                            if p:
+                                result[ticker] = {
+                                    "price": round(p, CryptoHandler._decimals(p)),
+                                    "change_24h": round(ch, 2),
+                                }
+                        result["USDT"] = {"price": 1.0, "change_24h": 0.0}
+                        if result:
+                            return result
         except Exception as e:
-            logger.error(f"CryptoHandler xatosi: {e}")
-            return None
+            logger.warning(f"CoinGecko zaxira xatosi: {e}")
+
+        return None
 
 
 # ── Metallar ──────────────────────────────────────────────────────────────────
