@@ -30,14 +30,25 @@ def _init_firebase():
         return
     if firebase_admin._apps:
         return
-    import os
+    import os, json
+    # 1) JSON mazmuni to'g'ridan-to'g'ri env da (Render uchun qulay)
+    sa_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
+    if sa_json:
+        try:
+            cred = credentials.Certificate(json.loads(sa_json))
+            firebase_admin.initialize_app(cred)
+            logger.info("Firebase Admin SDK ishga tushdi (JSON env)")
+            return
+        except Exception as e:
+            logger.error(f"Firebase JSON env xatosi: {e}")
+    # 2) Fayl yo'li orqali (lokal ishlab chiqish uchun)
     sa_path = os.getenv("FIREBASE_SERVICE_ACCOUNT")
     if sa_path and os.path.exists(sa_path):
         cred = credentials.Certificate(sa_path)
         firebase_admin.initialize_app(cred)
-        logger.info("Firebase Admin SDK ishga tushdi")
+        logger.info("Firebase Admin SDK ishga tushdi (fayl)")
     else:
-        logger.warning("FIREBASE_SERVICE_ACCOUNT env yo'q — Firebase Admin o'chirilgan")
+        logger.warning("FIREBASE_SERVICE_ACCOUNT_JSON yoki FIREBASE_SERVICE_ACCOUNT env yo'q")
 
 
 _init_firebase()
