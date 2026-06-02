@@ -1,12 +1,10 @@
 ﻿// ── TELEGRAM ──
 const tg=window.Telegram?.WebApp;
 if(tg){
-  tg.ready();
-  tg.expand();
-  // To'liq ekran — yangi Telegram versiyalarida
-  if(typeof tg.requestFullscreen==='function') tg.requestFullscreen();
-  // Yopish tasdiqlash (tasodifiy yopilmasin)
-  tg.enableClosingConfirmation?.();
+  try{tg.ready();}catch(e){}
+  try{tg.expand();}catch(e){}
+  try{if(typeof tg.requestFullscreen==='function')tg.requestFullscreen();}catch(e){}
+  try{tg.enableClosingConfirmation?.();}catch(e){}
 }
 
 
