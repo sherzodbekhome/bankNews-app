@@ -294,7 +294,6 @@ async def _run_webhook():
 
     await stop_event.wait()
     await runner.cleanup()
-    await bot.delete_webhook()
 
 
 if __name__ == "__main__":
