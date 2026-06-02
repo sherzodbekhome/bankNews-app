@@ -626,7 +626,7 @@ function renderHeroCard(){
   if(df&&STATE.CBU.USD){
     const diff=topBuy.buy-STATE.CBU.USD.rate;
     const sign=diff>=0?'+':'';
-    df.innerHTML=`STATE.CBU: <span>${fmtFull(STATE.CBU.USD.rate,0)} so'm</span> · Ustama: <span style="color:${diff>=0?'var(--green)':'var(--red)'}">${sign}${fmtFull(diff,0)}</span>`;
+    df.innerHTML=`CBU kursi: <span>${fmtFull(STATE.CBU.USD.rate,0)} so'm</span> · Ustama: <span style="color:${diff>=0?'var(--green)':'var(--red)'}">${sign}${fmtFull(diff,0)}</span>`;
   }
 }
 

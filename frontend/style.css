@@ -1046,6 +1046,17 @@ body::after{
   font-size:11px;font-weight:700;color:var(--purple2);cursor:pointer;
 }
 .hero-cta svg{width:14px;height:14px}
+/* Trend signal */
+.trend-row{display:flex;align-items:center;gap:8px}
+.trend-cur{font-size:11px;font-weight:700;color:var(--text2);width:30px;flex-shrink:0}
+.trend-bar-bg{flex:1;height:5px;background:var(--surface);border-radius:3px;overflow:hidden}
+.trend-bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.trend-signal-badge{display:inline-block;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-bottom:6px}
+.trend-signal-badge.up{background:rgba(255,71,87,.12);color:var(--red);border:1px solid rgba(255,71,87,.25)}
+.trend-signal-badge.down{background:rgba(0,214,143,.12);color:var(--green);border:1px solid rgba(0,214,143,.25)}
+.trend-signal-badge.stable{background:rgba(160,180,210,.1);color:var(--text3);border:1px solid var(--border)}
+.trend-signal-badge.volatile{background:rgba(255,179,0,.12);color:#ffb300;border:1px solid rgba(255,179,0,.25)}
+.trend-rec{padding:8px 10px;border-radius:10px;background:var(--surface);border:1px solid var(--border);font-size:11px;color:var(--text)}
 
 /* ═══ SOZLAMALAR ═══ */
 /* Premium CTA — AvtoPilot uslubi */
