@@ -317,7 +317,7 @@
             <button class="kqb" onclick="kqa('kAmt',50000000)">50M</button>
             <button class="kqb" onclick="kqa('kAmt',100000000)">100M</button>
           </div>
-          <div class="flbl" class="mt-12">Muddat (oy)</div>
+          <div class="flbl mt-12">Muddat (oy)</div>
           <input class="kinput" type="number" id="kMonth" placeholder="36" value="36" oninput="doKredit()">
           <div class="kqrow">
             <button class="kqb" onclick="kqa('kMonth',12)">12 oy</button>
@@ -325,7 +325,7 @@
             <button class="kqb" onclick="kqa('kMonth',36)">36 oy</button>
             <button class="kqb" onclick="kqa('kMonth',60)">60 oy</button>
           </div>
-          <div class="flbl" class="mt-12">Yillik Foiz (%)</div>
+          <div class="flbl mt-12">Yillik Foiz (%)</div>
           <input class="kinput" type="number" id="kRate" placeholder="24" value="24" oninput="doKredit()">
           <div class="kqrow">
             <button class="kqb" onclick="kqa('kRate',18)">18%</button>
@@ -355,7 +355,7 @@
             <button class="kqb" onclick="kqa('dAmt',50000000)">50M</button>
             <button class="kqb" onclick="kqa('dAmt',100000000)">100M</button>
           </div>
-          <div class="flbl" class="mt-12">Muddat (oy)</div>
+          <div class="flbl mt-12">Muddat (oy)</div>
           <input class="kinput" type="number" id="dMonth" placeholder="12" value="12" oninput="doDepozit()">
           <div class="kqrow">
             <button class="kqb" onclick="kqa('dMonth',3)">3 oy</button>
@@ -363,7 +363,7 @@
             <button class="kqb" onclick="kqa('dMonth',12)">12 oy</button>
             <button class="kqb" onclick="kqa('dMonth',24)">24 oy</button>
           </div>
-          <div class="flbl" class="mt-12">Yillik Foiz (%)</div>
+          <div class="flbl mt-12">Yillik Foiz (%)</div>
           <input class="kinput" type="number" id="dRate" placeholder="22" value="22" oninput="doDepozit()">
           <div class="kqrow">
             <button class="kqb" onclick="kqa('dRate',18)">18%</button>
@@ -387,7 +387,7 @@
           <div class="flbl">Oylik Maosh</div>
           <div style="display:flex;gap:8px;margin-bottom:10px">
             <input class="kinput" type="number" id="mAmt" placeholder="5 000 000" oninput="doMaosh()" style="flex:1;min-width:0">
-            <select class="csel" id="mCur" onchange="doMaosh()" class="flex-auto">
+            <select class="csel flex-auto" id="mCur" onchange="doMaosh()">
               <option value="UZS">🇺🇿 UZS</option>
               <option value="USD">🇺🇸 USD</option>
               <option value="EUR">🇪🇺 EUR</option>
@@ -426,8 +426,8 @@
           </div>
           <div class="flbl">Miqdor va valyuta</div>
           <div class="flex-row">
-            <input class="kinput" type="number" id="bcAmt" placeholder="10 000" oninput="doBankComp()" class="flex-1">
-            <select class="csel" id="bcCur" onchange="doBankComp()" class="flex-auto">
+            <input class="kinput flex-1" type="number" id="bcAmt" placeholder="10 000" oninput="doBankComp()">
+            <select class="csel flex-auto" id="bcCur" onchange="doBankComp()">
               <option value="USD">USD</option>
               <option value="EUR">EUR</option>
               <option value="RUB">RUB</option>
@@ -451,16 +451,16 @@
         <div class="kf">
           <div class="flbl">Maqsad (Miqdor)</div>
           <div class="flex-row">
-            <input class="kinput" type="number" id="gGoal" placeholder="20 000" oninput="doGoal()" class="flex-1">
-            <select class="csel" id="gCur" onchange="doGoal()" class="flex-auto">
+            <input class="kinput flex-1" type="number" id="gGoal" placeholder="20 000" oninput="doGoal()">
+            <select class="csel flex-auto" id="gCur" onchange="doGoal()">
               <option value="USD">USD</option>
               <option value="EUR">EUR</option>
               <option value="UZS">UZS</option>
             </select>
           </div>
-          <div class="flbl" class="mt-12">Hozirda bor (xuddi shu valyutada)</div>
+          <div class="flbl mt-12">Hozirda bor (xuddi shu valyutada)</div>
           <input class="kinput" type="number" id="gNow" placeholder="5 000" oninput="doGoal()">
-          <div class="flbl" class="mt-12">Oylik tejash (so'mda)</div>
+          <div class="flbl mt-12">Oylik tejash (so'mda)</div>
           <input class="kinput" type="number" id="gMonth" placeholder="1 000 000" oninput="doGoal()">
           <div class="kqrow">
             <button class="kqb" onclick="kqa('gMonth',500000)">500K</button>
@@ -485,8 +485,8 @@
         <div class="kf">
           <div class="flbl">Sotib olish</div>
           <div class="flex-row">
-            <input class="kinput" type="number" id="plAmt" placeholder="1 000" oninput="doProfit()" class="flex-1">
-            <select class="csel" id="plCur" onchange="plCurChange()" class="flex-auto">
+            <input class="kinput flex-1" type="number" id="plAmt" placeholder="1 000" oninput="doProfit()">
+            <select class="csel flex-auto" id="plCur" onchange="plCurChange()">
               <option value="USD">USD</option>
               <option value="EUR">EUR</option>
               <option value="BTC">BTC</option>
@@ -494,11 +494,11 @@
               <option value="XAU">XAU</option>
             </select>
           </div>
-          <div class="flbl" class="mt-12">Sotib olish kursi (so'mda)</div>
+          <div class="flbl mt-12">Sotib olish kursi (so'mda)</div>
           <input class="kinput" type="number" id="plBuyRate" placeholder="11 900" oninput="doProfit()">
-          <div class="flbl" class="mt-12">Hozirgi kurs (so'mda)</div>
+          <div class="flbl mt-12">Hozirgi kurs (so'mda)</div>
           <div style="display:flex;gap:8px;align-items:center">
-            <input class="kinput" type="number" id="plNowRate" placeholder="12 150" oninput="doProfit()" class="flex-1">
+            <input class="kinput flex-1" type="number" id="plNowRate" placeholder="12 150" oninput="doProfit()">
             <button class="kqb" onclick="plFillCurrent()" style="white-space:nowrap">↻ Hozirgi</button>
           </div>
           <div class="kres" id="plRes">

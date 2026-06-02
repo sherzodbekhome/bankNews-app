@@ -295,7 +295,10 @@ function goTab(i){
   if(i===2) doCalc();
   if(i===3) renderPortfolio();
   if(i===5) renderProfileTab();
-  if(i===6) renderAITahlil();
+  if(i===6){
+    // Data tayyor bo'lsa tahlil, yo'qsa avval yuklanadi (renderAITahlil ichida)
+    setTimeout(()=>renderAITahlil(),100);
+  }
   if(i===7) renderSozlamalar();
 }
 
@@ -1072,15 +1075,7 @@ async function loadCryptoAI(){
     aiEl.innerHTML=`<div style="color:var(--red);font-size:12px;text-align:center;padding:10px">${msg}</div>
       <button onclick="loadCryptoAI()" style="width:100%;padding:10px;background:var(--surface);border:1px solid var(--glass-border);border-radius:10px;color:var(--text);font-size:12px;cursor:pointer;margin-top:8px">Qayta urinish</button>`;
   };
-  // 1. Backend urinish
-  try{
-    const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),8000);
-    const r=await fetch(`/api/ai/analyze?coin=${encodeURIComponent(sym)}&name=${encodeURIComponent(d.name||sym)}&price=${d.usd}&change=${(d.change||0).toFixed(2)}`,{signal:ac.signal});
-    clearTimeout(tid);
-    const data=await r.json();
-    if(data.ok&&data.analysis){showResult(data.analysis);return;}
-  }catch(_){}
-  // 2. Fallback — Gemini to'g'ridan-to'g'ri
+  // Gemini to'g'ridan-to'g'ri
   try{
     const usd=d.usd||0;
     const prompt=`${d.name||sym} (${sym}) kripto valyuta haqida qisqa tahlil yoz (3-4 gap, o'zbek tilida):\nJoriy narx: $${usd>=1?fmt(usd,2):usd.toFixed(4)}\n24s o'zgarish: ${(d.change||0).toFixed(2)}%\n\nNarx tendensiyasi, texnik ko'rsatkichlar va qisqa muddatli prognoz.`;
@@ -2526,11 +2521,16 @@ loadCache();
 })();
 loadAll();
 
-// Har 5 daqiqada yashirin yangilash — loading spinner ko'rsatmasdan
+// Har 5 daqiqada yashirin yangilash — faqat kerakli bo'limlar
 setInterval(async ()=>{
-  await Promise.all([loadCBU(),loadCrypto(),loadMetals()]);
-  loadP2P();
-  doCalc();
+  const tab=parseInt(document.querySelector('.nb.on')?.dataset?.tab??'0');
+  // Valyuta yoki asosiy tablar — CBU har doim yangilanadi
+  await loadBankRates();
+  if(tab===0||tab===2) await loadCBU();
+  if(tab===1||document.getElementById('cryptoPanel')?.classList.contains('open')) loadCrypto();
+  if(document.getElementById('metalsPanel')?.classList.contains('open')) loadMetals();
+  if(document.getElementById('cryptoPanel')?.classList.contains('open')) loadP2P();
+  if(tab===2) doCalc();
 }, 5*60*1000);
 
 // ══════════════════════════════════════════
@@ -3434,23 +3434,8 @@ async function renderAITahlil(force=false){
       </div>
     </div>`;
 
-  // 1. Backend urinish
+  // Gemini API to'g'ridan-to'g'ri
   try{
-    const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),8000);
-    const r=await fetch('/api/ai/analyze',{signal:ac.signal});
-    clearTimeout(tid);
-    const d=await r.json();
-    if(d.ok && d.analysis){
-      _aiCache={analysis:d.analysis,signals:d.signals,ts:d.ts};
-      _aiCacheTs=now;
-      _aiShowResult(root,_aiCache);
-      return;
-    }
-  }catch(_){}
-
-  // 2. Fallback — Gemini API to'g'ridan-to'g'ri
-  try{
-    // Ma'lumot yuklanmagan bo'lsa, avval yuklaymiz
     if(!STATE.CBU.USD){try{await loadCBU();}catch(_){}}
     if(!STATE.CRYPTO.BTC){try{await loadCrypto();}catch(_){}}
     const analysis=await _callGeminiDirect(_buildMarketPrompt());
