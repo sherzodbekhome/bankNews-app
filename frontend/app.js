@@ -288,10 +288,9 @@ function goTab(i){
   haptic('select');
   document.querySelectorAll('.sec').forEach((s,j)=>s.classList.toggle('on',j===i));
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',j===i));
-  // Bottom nav highlight
-  document.querySelectorAll('.nb').forEach(n=>{
+  // Bottom nav highlight — .nb va .nb-center ikkalasi ham
+  document.querySelectorAll('.nb,.nb-center').forEach(n=>{
     const t=parseInt(n.dataset.tab??'-1');
-    // Valyuta nav button stays highlighted for all market sub-tabs
     const isValy=t===0&&MKT_TABS.includes(i);
     n.classList.toggle('on',t===i||isValy);
   });
@@ -536,62 +535,52 @@ function renderCBU(){
   document.getElementById('v-load').style.display='none';
   document.getElementById('v-body').style.display='block';
 
-  const ACCENT={USD:'usd',EUR:'eur',RUB:'rub',GBP:'gbp',CNY:'cny',KZT:'kzt',TRY:'try',JPY:'jpy',CHF:'chf'};
-  const SYM={USD:'$',EUR:'€',RUB:'₽',GBP:'£',CNY:'¥',KZT:'₸',TRY:'₺',JPY:'¥',CHF:'₣'};
   const all=Object.entries(STATE.CBU);
 
-  function badge(diff2,pct){
+  // ── Hero scroll kartalar ──────────────────────────────────
+  const HERO_COLORS={USD:'blue',EUR:'',RUB:'orange',BTC:'orange'};
+  const heroCards=['USD','EUR','RUB'].map(c=>{
+    const i=STATE.CBU[c]; if(!i) return '';
+    const diff2=i.diff||0;
     const cl=diff2>0?'up':diff2<0?'dn':'nt';
-    const ar=diff2>0?'▲':diff2<0?'▼':'';
-    return `<div class="cbu-card-pct ${cl}">${ar}${pct}</div>`;
-  }
-  function diffRow(diff2,cls){
-    const t=diff2!==0?`${diff2>0?'+':'-'} ${Math.abs(diff2).toFixed(2)} so'm`:'—';
-    return `<div class="cbu-hero-diff ${cls}">${t}</div>`;
-  }
+    const diffTxt=diff2!==0?`${diff2>0?'▲':'▼'} ${Math.abs(diff2).toFixed(0)} so'm`:'—';
+    return`<div class="hero-card ${HERO_COLORS[c]||''}" onclick="openCurDetail('${c}')">
+      <div class="hero-card-label">${cname(c)} · CBU</div>
+      <div class="hero-card-val">${fmtFull(i.rate,0)}</div>
+      <div class="hero-card-sub">1 ${c} = ... so'm</div>
+      <div class="hero-card-change ${cl}">${diffTxt}</div>
+    </div>`;
+  }).join('');
 
-  // ── HERO karta (USD) ──────────────────────────────────────
-  const heroEntry=all.find(([c])=>c==='USD');
-  let heroHTML='';
-  if(heroEntry){
-    const [c,i]=heroEntry;
+  // ── Domo uslubi ro'yxat ────────────────────────────────────
+  function cbuRow([c,i]){
     const diff2=i.diff||0;
-    const pct=i.diff_pct!=null?`${i.diff_pct>0?'+':''}${Number(i.diff_pct).toFixed(2)}%`:'—';
-    const cl2=diff2>0?'up':diff2<0?'dn':'nt';
+    const cl=diff2>0?'up':diff2<0?'dn':'nt';
+    const diffTxt=diff2!==0?`${diff2>0?'+':'-'}${Math.abs(diff2).toFixed(2)}`:'—';
     const spk=_sparklineSVG(c,false);
-    heroHTML=`<div class="cbu-hero-card ${ACCENT[c]||''}" data-sym="${SYM[c]||''}" onclick="openCurDetail('${c}')">
-      <div class="cbu-hero-top">
-        <div class="cbu-hero-flag">${_flagImg(c,36,24)}<span class="cbu-hero-code">${c}</span></div>
-        ${badge(diff2,pct)}
+    return`<div class="cbu-item" onclick="openCurDetail('${c}')">
+      <div class="cbu-flag">${_flagImg(c,36,36)}</div>
+      <div class="cbu-name">
+        <div class="cbu-name-code">${c}</div>
+        <div class="cbu-name-full">${cname(c)}</div>
       </div>
-      <div class="cbu-hero-name">${cname(c)} · CBU rasmiy kursi</div>
-      <div class="cbu-hero-rate">${fmtFull(i.rate,0)}<span class="cbu-hero-unit">so'm</span></div>
-      ${diffRow(diff2,cl2)}
-      ${spk?`<div class="cbu-hero-spk">${spk}</div>`:''}
+      ${spk?`<div style="width:60px;flex-shrink:0">${spk}</div>`:''}
+      <div class="cbu-right">
+        <div class="cbu-rate">${fmtFull(i.rate,i.rate<10?4:i.rate<1000?2:0)}</div>
+        <div class="cbu-diff ${cl}">${diffTxt} so'm</div>
+      </div>
     </div>`;
   }
 
-  // ── Qolgan valyutalar grid ─────────────────────────────────
-  function cbuCard([c,i]){
-    const diff2=i.diff||0;
-    const pct=i.diff_pct!=null?`${i.diff_pct>0?'+':''}${Number(i.diff_pct).toFixed(2)}%`:'—';
-    const cl2=diff2>0?'up':diff2<0?'dn':'nt';
-    const spk=_sparklineSVG(c,true);
-    return`<div class="cbu-card ${ACCENT[c]||''}" data-sym="${SYM[c]||''}" onclick="openCurDetail('${c}')">
-      <div class="cbu-flag-row">
-        <div class="cbu-flag-ico">${_flagImg(c,26,17)}<span style="font-size:9px;font-weight:800;color:var(--ac);margin-left:4px">${c}</span></div>
-        ${badge(diff2,pct)}
-      </div>
-      <div class="cbu-card-name">${cname(c)}</div>
-      ${spk?`<div class="cbu-card-spk">${spk}</div>`:''}
-      <div class="cbu-card-rate">${fmtFull(i.rate,i.rate<10?4:i.rate<1000?2:0)}<small>so'm</small></div>
-      <div class="cbu-card-diff ${cl2}">${diff2!==0?`${diff2>0?'+':'-'}${Math.abs(diff2).toFixed(2)}`:'—'}</div>
-    </div>`;
-  }
-
+  const usdEntry=all.find(([c])=>c==='USD');
   const rest=all.filter(([c])=>c!=='USD');
-  const grid=`<div class="cbu-grid">${rest.map(cbuCard).join('')}</div>`;
-  document.getElementById('cbuList').innerHTML=heroHTML+grid;
+  const rows=[...(usdEntry?[usdEntry]:[]),...rest].map(cbuRow).join('');
+
+  document.getElementById('cbuList').innerHTML=
+    `<div class="hero-scroll">${heroCards}</div>`+
+    `<div class="cbu-list-section"><div class="cbu-list-title">CBU Rasmiy Kurslar</div>`+
+    `<div style="border-radius:var(--r);overflow:hidden;margin-bottom:12px">${rows}</div></div>`;
+
   renderBankTable();
   saveCache();
 }
@@ -2552,7 +2541,7 @@ loadAll();
 
 // Har 5 daqiqada yashirin yangilash — faqat kerakli bo'limlar
 setInterval(async ()=>{
-  const tab=parseInt(document.querySelector('.nb.on')?.dataset?.tab??'0');
+  const tab=parseInt(document.querySelector('.nb.on,.nb-center.on')?.dataset?.tab??'0');
   // Valyuta yoki asosiy tablar — CBU har doim yangilanadi
   await loadBankRates();
   if(tab===0||tab===2) await loadCBU();
