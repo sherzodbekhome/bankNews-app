@@ -1955,7 +1955,7 @@ let _portChartInst=null;
 
 function renderPortChart(items){
   const wrap=document.getElementById('portChartWrap');
-  if(!wrap) return;
+  if(!wrap||typeof Chart==='undefined') return;
 
   const data=items.filter(it=>it.val>0);
   if(data.length<2){wrap.style.display='none';return;}
@@ -2162,7 +2162,7 @@ function renderChartFromHistory(){
 }
 
 function renderChart(){
-  if(!chartHistory.length) return;
+  if(!chartHistory.length||typeof Chart==='undefined') return;
   const labels=chartHistory.map(h=>h.date.slice(5).replace('-','.'));
   const data=chartHistory.map(h=>h[chartCur]||null);
   const ctx=document.getElementById('rateChart')?.getContext('2d');
