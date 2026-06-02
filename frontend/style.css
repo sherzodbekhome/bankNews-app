@@ -1014,6 +1014,8 @@ body::after{
 .nb.prem-nb{color:rgba(235,235,245,0.35)}
 .nb.prem-nb.on{color:#FFD60A}
 .nb span{white-space:nowrap;line-height:1;display:block}
+/* Desktop da ko'rinadigan extra nav tugmalar — mobildan yashiriladi */
+.nb-desktop{display:none}
 .ndot{display:none}
 
 /* ═══ FEATURE ROWS (AvtoPilot uslubi) ═══ */
@@ -1867,6 +1869,12 @@ body::after{
     border-bottom: 1px solid var(--border);
   }
 
+  /* Desktop da yashirilgan tugmalar ko'rinadi */
+  .nb-desktop { display: flex; }
+
+  /* Mobil markaziy tugmani desktop da yashirish */
+  .nb-center { display: none !important; }
+
   /* Nav tugmalar — gorizontal, chapga tekislangan */
   .nb {
     flex-direction: row;
@@ -1874,13 +1882,19 @@ body::after{
     padding: 10px 14px;
     min-width: auto;
     width: 100%;
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: 0;
     justify-content: flex-start;
     border-radius: 10px;
     color: var(--text2);
     text-align: left;
+    transition: background .15s, color .15s;
+  }
+
+  .nb:hover {
+    background: rgba(255,255,255,.06);
+    color: var(--text);
   }
 
   .nb svg {
