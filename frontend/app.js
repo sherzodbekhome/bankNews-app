@@ -2,15 +2,6 @@
 const tg=window.Telegram?.WebApp;
 if(tg){tg.ready();tg.expand()}
 
-// ── WEB MODE: Telegram tashqarisida topbar ko'rsatish ──
-const _isWeb = !tg || !tg.initData;
-function _syncTopbar(){
-  const bar = document.getElementById('webTopbar');
-  if(!bar) return;
-  bar.style.display = (_isWeb && window.innerWidth < 900) ? 'flex' : 'none';
-}
-_syncTopbar();
-window.addEventListener('resize', _syncTopbar);
 
 // ── PWA SERVICE WORKER ──
 if('serviceWorker' in navigator){
