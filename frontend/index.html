@@ -319,7 +319,7 @@
             <button class="kqb" onclick="kqa('kAmt',50000000)">50M</button>
             <button class="kqb" onclick="kqa('kAmt',100000000)">100M</button>
           </div>
-          <div class="flbl mt-12">Muddat (oy)</div>
+          <div class="flbl mt-12">Muddati (oy)</div>
           <input class="kinput" type="number" id="kMonth" placeholder="36" value="36" oninput="doKredit()">
           <div class="kqrow">
             <button class="kqb" onclick="kqa('kMonth',12)">12 oy</button>
@@ -327,7 +327,7 @@
             <button class="kqb" onclick="kqa('kMonth',36)">36 oy</button>
             <button class="kqb" onclick="kqa('kMonth',60)">60 oy</button>
           </div>
-          <div class="flbl mt-12">Yillik Foiz (%)</div>
+          <div class="flbl mt-12">Yillik foiz stavkasi (%)</div>
           <input class="kinput" type="number" id="kRate" placeholder="24" value="24" oninput="doKredit()">
           <div class="kqrow">
             <button class="kqb" onclick="kqa('kRate',18)">18%</button>
@@ -336,11 +336,11 @@
             <button class="kqb" onclick="kqa('kRate',32)">32%</button>
           </div>
           <div class="kres" id="kRes">
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Oylik to'lov</span><span class="kv" id="kMonthly">—</span></div>
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Jami to'lov</span><span class="kv" id="kTotal">—</span></div>
-            <div class="krow2"><span class="kk" class="text-red"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Jami foiz</span><span class="kv" id="kInterest" class="text-red">—</span></div>
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Foiz ulushi</span><span class="kv" id="kPct">—</span></div>
-            <button class="kqb" onclick="toggleSchedule()" id="schedBtn" style="width:100%;margin-top:10px;padding:8px;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>To'lov jadvali ▼</button>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Oylik annuitet to'lovi</span><span class="kv" id="kMonthly">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Jami to'lov majburiyati</span><span class="kv" id="kTotal">—</span></div>
+            <div class="krow2"><span class="kk" class="text-red"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Jami foiz yuklamasi</span><span class="kv" id="kInterest" class="text-red">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Foiz xarajatlarining ulushi</span><span class="kv" id="kPct">—</span></div>
+            <button class="kqb" onclick="toggleSchedule()" id="schedBtn" style="width:100%;margin-top:10px;padding:8px;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Annuitet to'lov jadvali ▼</button>
             <div id="kSchedule" style="display:none;margin-top:8px;overflow-x:auto"></div>
           </div>
       </div>
@@ -349,7 +349,7 @@
     <!-- ── Depozit kalkulyatori ── -->
     <div id="calc-depozit" style="display:none">
       <div class="kf">
-          <div class="flbl">Boshlang'ich Summa (so'm)</div>
+          <div class="flbl">Boshlang'ich depozit summasi (so'm)</div>
           <input class="kinput" type="number" id="dAmt" value="10000000" placeholder="10 000 000" oninput="doDepozit()">
           <div class="kqrow">
             <button class="kqb" onclick="kqa('dAmt',5000000)">5M</button>
@@ -374,9 +374,9 @@
             <button class="kqb" onclick="kqa('dRate',28)">28%</button>
           </div>
           <div class="kres" id="dRes">
-            <div class="krow2"><span class="kk" class="text-green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Foyda</span><span class="kv" id="dProfit" class="text-green">—</span></div>
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Jami summa</span><span class="kv" id="dTotal">—</span></div>
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Samarali foiz</span><span class="kv" id="dEff">—</span></div>
+            <div class="krow2"><span class="kk" class="text-green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Hisoblangan foiz daromadi</span><span class="kv" id="dProfit" class="text-green">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Muddat oxiridagi jami summa</span><span class="kv" id="dTotal">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Samarali yillik foiz stavkasi</span><span class="kv" id="dEff">—</span></div>
           </div>
       </div>
     </div>
@@ -384,9 +384,9 @@
     <!-- ── Maosh kalkulyatori ── -->
     <div id="calc-maosh" style="display:none">
       <div class="ccard">
-        <div class="ch"><div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>Maosh Kalkulyatori</div></div>
+        <div class="ch"><div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>Mehnat Haqi Kalkulyatori</div></div>
         <div class="kf">
-          <div class="flbl">Oylik Maosh</div>
+          <div class="flbl">Brutto ish haqi</div>
           <div style="display:flex;gap:8px;margin-bottom:10px">
             <input class="kinput" type="number" id="mAmt" placeholder="5 000 000" oninput="doMaosh()" style="flex:1;min-width:0">
             <select class="csel flex-auto" id="mCur" onchange="doMaosh()">
@@ -404,13 +404,13 @@
           </div>
           <div id="mWarn" style="display:none;align-items:center;gap:6px;background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.25);border-radius:9px;padding:8px 11px;margin-top:8px;font-size:11px;color:var(--red)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Minimal ish haqidan (980 000 so'm) past!</div>
           <div class="kres" id="mRes">
-            <div class="krow2"><span class="kk" class="text-green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Qo'lga tegadigan (netto)</span><span class="kv" id="mNetto" class="text-green">—</span></div>
-            <div class="krow2"><span class="kk" class="text-red"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22h18M3 10l9-8 9 8M9 22V12h6v10"/></svg>Daromad solig'i (12%)</span><span class="kv" id="mTax" class="text-red">—</span></div>
-            <div class="krow2"><span class="kk" class="text-red"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>INPS (8%)</span><span class="kv" id="mInps" class="text-red">—</span></div>
-            <div class="krow2" style="border-top:1px dashed var(--border);padding-top:8px;margin-top:4px"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Brutto (kiritilgan)</span><span class="kv" id="mBrutto">—</span></div>
+            <div class="krow2"><span class="kk" class="text-green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Netto ish haqi (qo'lga beriladi)</span><span class="kv" id="mNetto" class="text-green">—</span></div>
+            <div class="krow2"><span class="kk" class="text-red"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22h18M3 10l9-8 9 8M9 22V12h6v10"/></svg>Jismoniy shaxs daromad solig'i (12%)</span><span class="kv" id="mTax" class="text-red">—</span></div>
+            <div class="krow2"><span class="kk" class="text-red"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>INPS — ijtimoiy sug'urta (8%)</span><span class="kv" id="mInps" class="text-red">—</span></div>
+            <div class="krow2" style="border-top:1px dashed var(--border);padding-top:8px;margin-top:4px"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Brutto ish haqi (belgilangan)</span><span class="kv" id="mBrutto">—</span></div>
             <div id="mCurrRows"></div>
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Yillik</span><span class="kv" id="mYearly">—</span></div>
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Kunlik (ish kuni)</span><span class="kv" id="mDaily">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Yillik mehnat haqi</span><span class="kv" id="mYearly">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>O'rtacha kunlik ish haqi</span><span class="kv" id="mDaily">—</span></div>
           </div>
         </div>
       </div>
@@ -419,12 +419,12 @@
     <!-- ── Bank taqqoslash ── -->
     <div id="calc-bankcomp" style="display:none">
       <div class="ccard">
-        <div class="ch"><div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 9l9-6 9 6"/><line x1="9" y1="21" x2="9" y2="13"/><line x1="15" y1="21" x2="15" y2="13"/></svg>Bank Taqqoslash</div></div>
+        <div class="ch"><div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 9l9-6 9 6"/><line x1="9" y1="21" x2="9" y2="13"/><line x1="15" y1="21" x2="15" y2="13"/></svg>Tijorat Banklari Kurs Taqqoslamasi</div></div>
         <div class="kf">
-          <div class="flbl">Siz nima qilmoqchisiz?</div>
+          <div class="flbl">Operatsiya turini tanlang</div>
           <div style="display:flex;gap:8px;margin-bottom:12px">
-            <button id="bc-sell-btn" class="kqb on" style="flex:1;padding:10px;display:flex;align-items:center;justify-content:center;gap:5px" onclick="setBcDir('sell',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m0 14l-7-7m7 7l7-7"/></svg>USD Sotaman</button>
-            <button id="bc-buy-btn" class="kqb" style="flex:1;padding:10px;display:flex;align-items:center;justify-content:center;gap:5px" onclick="setBcDir('buy',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m0-14l-7 7m7-7l7 7"/></svg>USD Sotib olaman</button>
+            <button id="bc-sell-btn" class="kqb on" style="flex:1;padding:10px;display:flex;align-items:center;justify-content:center;gap:5px" onclick="setBcDir('sell',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m0 14l-7-7m7 7l7-7"/></svg>Sotaman (bank sotib oladi)</button>
+            <button id="bc-buy-btn" class="kqb" style="flex:1;padding:10px;display:flex;align-items:center;justify-content:center;gap:5px" onclick="setBcDir('buy',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m0-14l-7 7m7-7l7 7"/></svg>Sotib olaman (bank sotadi)</button>
           </div>
           <div class="flbl">Miqdor va valyuta</div>
           <div class="flex-row">
@@ -449,7 +449,7 @@
     <!-- ── Maqsad kalkulyatori ── -->
     <div id="calc-maqsad" style="display:none">
       <div class="ccard">
-        <div class="ch"><div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Maqsad Rejalovchi</div></div>
+        <div class="ch"><div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Moliyaviy Maqsad Rejalashtiruvchi</div></div>
         <div class="kf">
           <div class="flbl">Maqsad (Miqdor)</div>
           <div class="flex-row">
@@ -471,10 +471,10 @@
             <button class="kqb" onclick="kqa('gMonth',5000000)">5M</button>
           </div>
           <div class="kres" id="gRes">
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Taxminiy muddat</span><span class="kv" id="gMonths" style="color:var(--gold2)">—</span></div>
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Tugash sanasi</span><span class="kv" id="gDate">—</span></div>
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Oylik tejash (valyutada)</span><span class="kv" id="gMonthCur">—</span></div>
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>Qoldi</span><span class="kv" id="gRemain">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Taxminiy erishish muddati</span><span class="kv" id="gMonths" style="color:var(--gold2)">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Maqsadga erishish sanasi</span><span class="kv" id="gDate">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Zarur oylik jamg'arma</span><span class="kv" id="gMonthCur">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>Qolgan maqsad summasi</span><span class="kv" id="gRemain">—</span></div>
           </div>
         </div>
       </div>
@@ -483,7 +483,7 @@
     <!-- ── Foyda/Zarar kalkulyatori ── -->
     <div id="calc-foyda" style="display:none">
       <div class="ccard">
-        <div class="ch"><div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Foyda / Zarar</div></div>
+        <div class="ch"><div class="ct" style="display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Investitsiya Foydasi / Zarari (P&amp;L)</div></div>
         <div class="kf">
           <div class="flbl">Sotib olish</div>
           <div class="flex-row">
@@ -504,14 +504,14 @@
             <button class="kqb" onclick="plFillCurrent()" style="white-space:nowrap">↻ Hozirgi</button>
           </div>
           <div class="kres" id="plRes">
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>Boshlang'ich summa</span><span class="kv" id="plStart">—</span></div>
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Hozirgi qiymat</span><span class="kv" id="plNow">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>Boshlang'ich investitsiya</span><span class="kv" id="plStart">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Joriy bozor qiymati</span><span class="kv" id="plNow">—</span></div>
             <div class="krow2" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px">
-              <span class="kk" id="plPnlLbl">Foyda</span>
+              <span class="kk" id="plPnlLbl">Sof foyda</span>
               <span class="kv" id="plPnl">—</span>
             </div>
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Foizda</span><span class="kv" id="plPct">—</span></div>
-            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>1 birlik o'zgarishi</span><span class="kv" id="plPer">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Daromadlilik darajasi (%)</span><span class="kv" id="plPct">—</span></div>
+            <div class="krow2"><span class="kk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>1 birlikdagi kurs o'zgarishi</span><span class="kv" id="plPer">—</span></div>
           </div>
         </div>
       </div>
@@ -1168,20 +1168,20 @@
     <div class="hero-card" id="heroCard">
       <div class="hero-top">
         <div>
-          <div class="hero-label">USD · Tijorat banklari</div>
-          <div class="hero-title">Eng yaxshi kurslar</div>
+          <div class="hero-label">USD · Tijorat banklari bozori</div>
+          <div class="hero-title">Eng Qulay Bozor Kurslari</div>
         </div>
         <div class="hero-badge"><div class="hero-badge-dot"></div>LIVE</div>
       </div>
       <div class="hero-grid">
         <div class="hero-col">
-          <div class="hero-col-lbl">Sotib olish ↑</div>
+          <div class="hero-col-lbl">Eng yuqori sotib olish</div>
           <div class="hero-col-val g" id="heroBuyVal">—</div>
           <div class="hero-col-bank" id="heroBuyBank">—</div>
         </div>
         <div class="hero-divider"></div>
         <div class="hero-col">
-          <div class="hero-col-lbl">Sotish ↓</div>
+          <div class="hero-col-lbl">Eng qulay sotish</div>
           <div class="hero-col-val r" id="heroSellVal">—</div>
           <div class="hero-col-bank" id="heroSellBank">—</div>
         </div>
@@ -1262,10 +1262,10 @@
   <!-- Yo'nalish: Siz sotasiz (buy) | Siz olasiz (sell) -->
   <div class="bc-dir-row">
     <button id="bsDirBuy" class="bc-dir-btn buy on" onclick="setBsDir('buy')" style="display:flex;align-items:center;justify-content:center;gap:5px">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg> Siz <b>sotasiz</b>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg> <b>Sotib olish</b> kursi
     </button>
     <button id="bsDirSell" class="bc-dir-btn sell" onclick="setBsDir('sell')" style="display:flex;align-items:center;justify-content:center;gap:5px">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> Siz <b>olasiz</b>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> <b>Sotish</b> kursi
     </button>
   </div>
 
