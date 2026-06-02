@@ -1088,8 +1088,10 @@ async function loadCryptoAI(){
     if(txt) showResult(txt);
     else showErr('Javob kelmadi');
   }catch(e){
-    if(e.message==='no_key')
-      aiEl.innerHTML=`<div style="font-size:12px;color:var(--text2);text-align:center;padding:10px">AI Tahlil tabida Gemini API key kiriting</div>`;
+    if(e.message==='NO_KEY')
+      aiEl.innerHTML=`<div style="font-size:12px;color:var(--text2);text-align:center;padding:10px">AI Tahlil bo'limida Gemini API key kiriting</div>`;
+    else if(e.message==='LIMIT')
+      showErr('⚡ Kunlik limit tugadi. Ertaga urinib ko\'ring.');
     else showErr(e.message||'Xato');
   }
 }
@@ -3215,8 +3217,10 @@ function renderCdChart(){
     }
   });
 }
-async function loadCdAI(){
+async function loadCdAI(force=false){
   const el=document.getElementById('cdAIContent');
+  const cacheKey='cur_'+_cdCur;
+  if(!force){const cached=_aiCacheGet(cacheKey);if(cached){el.innerHTML=`<div class="cd-ai-result">${cached.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}</div><button class="cd-ai-btn" style="border-top:1px solid var(--border)" onclick="loadCdAI(true)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.03-8.8"/></svg>Yangilash</button>`;return;}}
   el.innerHTML='<div style="padding:20px;text-align:center"><div class="spinner" style="margin:0 auto 8px"></div><div style="font-size:12px;color:var(--text3)">Tahlil qilinmoqda...</div></div>';
   const all=chartHistory.filter(h=>h[_cdCur]!=null);
   const hist30=all.slice(-30);
@@ -3238,22 +3242,27 @@ Javob qisqa bo'lsin, har bir band 1-2 jumladan iborat.`;
   try{
     const text=await _callGeminiDirect(prompt);
     if(!text) throw new Error('Javob kelmadi');
+    _aiCacheSet(cacheKey,text);
     el.innerHTML=`<div class="cd-ai-result">${text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}</div>
-      <button class="cd-ai-btn" style="border-top:1px solid var(--border)" onclick="loadCdAI()">
+      <button class="cd-ai-btn" style="border-top:1px solid var(--border)" onclick="loadCdAI(true)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.03-8.8"/></svg>
         Yangilash
       </button>`;
   }catch(e){
-    const noKey=!localStorage.getItem('bn_gemini_key')&&!_DEFAULT_GEMINI_KEY;
-    el.innerHTML=noKey
-      ?`<div style="padding:14px 16px">
-          <div style="font-size:12px;color:var(--text3);margin-bottom:10px">AI tahlil uchun Gemini API key kerak (bepul):</div>
-          <input id="cdAiKeyInput" type="text" placeholder="AIza..." style="width:100%;padding:9px 12px;background:var(--surface);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px">
-          <button onclick="const k=document.getElementById('cdAiKeyInput').value.trim();if(k){localStorage.setItem('bn_gemini_key',k);loadCdAI();}"
-            class="cd-ai-btn" style="background:linear-gradient(135deg,rgba(124,92,252,.2),rgba(124,92,252,.08))">Saqlash va tahlil qilish</button>
-        </div>`
-      :`<div style="padding:14px 16px;font-size:12px;color:var(--text3)">Xatolik: ${e.message||'Qayta urinib ko\'ring'}</div>
-        <button class="cd-ai-btn" onclick="loadCdAI()">Qayta urinish</button>`;
+    if(e.message==='NO_KEY'){
+      el.innerHTML=`<div style="padding:14px 16px">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px"><a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--gold)">aistudio.google.com</a> dan bepul API key oling:</div>
+        <input id="cdAiKeyInput" type="text" placeholder="AIza..." style="width:100%;padding:9px 12px;background:var(--surface);border:1.5px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px">
+        <button onclick="const k=document.getElementById('cdAiKeyInput').value.trim();if(k){localStorage.setItem('bn_gemini_key',k);loadCdAI();}"
+          class="cd-ai-btn" style="background:linear-gradient(135deg,rgba(124,92,252,.2),rgba(124,92,252,.08))">Saqlash va tahlil qilish</button>
+      </div>`;
+    } else if(e.message==='LIMIT'){
+      el.innerHTML=`<div style="padding:14px 16px;font-size:12px;color:var(--text3)">⚡ Kunlik so'rovlar limiti tugadi. Ertaga yoki boshqa API key bilan urinib ko'ring.</div>
+        <button class="cd-ai-btn" onclick="loadCdAI(true)">Qayta urinish</button>`;
+    } else {
+      el.innerHTML=`<div style="padding:14px 16px;font-size:12px;color:var(--text3)">Xatolik: ${e.message}</div>
+        <button class="cd-ai-btn" onclick="loadCdAI(true)">Qayta urinish</button>`;
+    }
   }
 }
 
@@ -3320,23 +3329,42 @@ function doStavkaKred(){
 // ── AI TAHLIL ──
 let _aiCache=null;
 let _aiCacheTs=0;
-const _AI_TTL=5*60*1000; // 5 daqiqa
+const _AI_TTL=60*60*1000; // 1 soat
 
-// Gemini API ni to'g'ridan-to'g'ri chaqirish (backend yo'q bo'lganda)
+// Gemini API
 const _DEFAULT_GEMINI_KEY='';
-async function _callGeminiDirect(prompt){
+const _AI_MODELS=['gemini-1.5-flash-8b','gemini-1.5-flash','gemini-2.0-flash-lite'];
+let _modelIdx=0;
+async function _callGeminiDirect(prompt,retries=0){
   const key=localStorage.getItem('bn_gemini_key')||_DEFAULT_GEMINI_KEY;
+  if(!key) throw new Error('NO_KEY');
+  const model=_AI_MODELS[_modelIdx%_AI_MODELS.length];
   const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),20000);
   const r=await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
     {method:'POST',headers:{'Content-Type':'application/json'},
-     body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:600,temperature:0.7}}),
+     body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:350,temperature:0.6}}),
      signal:ac.signal}
   );
   clearTimeout(tid);
   const d=await r.json();
-  if(d.error) throw new Error(d.error.message||'Gemini xatosi');
+  if(d.error){
+    // 429 = limit. Keyingi model bilan sinab ko'r
+    if((d.error.code===429||d.error.status==='RESOURCE_EXHAUSTED')&&retries<2){
+      _modelIdx++;
+      return _callGeminiDirect(prompt,retries+1);
+    }
+    throw new Error(d.error.code===429?'LIMIT':d.error.message||'Gemini xatosi');
+  }
   return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
+}
+// AI natijasini localStorage da 1 soat saqlash
+function _aiCacheGet(key){
+  try{const d=JSON.parse(localStorage.getItem('bn_ai_'+key)||'null');
+  if(d&&Date.now()-d.ts<3600000) return d.text;}catch(_){}return null;
+}
+function _aiCacheSet(key,text){
+  try{localStorage.setItem('bn_ai_'+key,JSON.stringify({text,ts:Date.now()}));}catch(_){}
 }
 
 function _buildMarketPrompt(){
@@ -3434,7 +3462,8 @@ async function renderAITahlil(force=false){
       _aiShowError(root,'Javob kelmadi');
     }
   }catch(e){
-    if(e.message==='no_key') _aiShowKeyPrompt(root);
+    if(e.message==='NO_KEY') _aiShowKeyPrompt(root);
+    else if(e.message==='LIMIT') _aiShowError(root,'⚡ Kunlik limit tugadi. Ertaga yoki boshqa API key bilan urinib ko\'ring.');
     else _aiShowError(root,e.message||'Ulanish xatosi');
   }
 }
