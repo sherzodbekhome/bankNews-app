@@ -63,7 +63,7 @@ from telegram_bot.admin_panel import register_admin_handlers
 from telegram_bot.handlers    import bank_comparison_router
 
 # Mini App URL (GitHub Pages)
-MINI_APP_URL = os.getenv("MINI_APP_URL", "https://sherzodbekhome.github.io/bankNews-app/")
+MINI_APP_URL = os.getenv("MINI_APP_URL", "https://sherzodbekhome.github.io/bankNews-app/frontend/")
 
 
 # ── Dispatcher + Bot ──────────────────────────────────────────────────────────

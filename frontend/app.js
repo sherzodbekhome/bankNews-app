@@ -271,8 +271,10 @@ applyTheme();
 
 // ── CLOCK ──
 const clkEl=document.getElementById('clk');
-const tickClk=()=>clkEl.textContent=new Date().toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'});
-tickClk();setInterval(tickClk,1000);
+if(clkEl){
+  const tickClk=()=>{try{clkEl.textContent=new Date().toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'});}catch{const d=new Date();clkEl.textContent=d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}};
+  tickClk();setInterval(tickClk,1000);
+}
 
 // ── TABS ──
 const MKT_TABS=[0,1,3,4]; // Valyuta, Kripto, Portfel, Metallar
