@@ -397,7 +397,7 @@ function parseBankUzHTML(html){
 async function loadBankRates(){
   // 1. GitHub raw (GitHub Actions har soat yangilaydi — eng ishonchli)
   try{
-    const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),7000);
+    const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),5000);
     const r=await fetch(BANKS_URL,{cache:'no-cache',signal:ac.signal});
     clearTimeout(tid);
     if(r.ok){
@@ -447,7 +447,7 @@ async function loadCBU(){
   // 1. STATE.CBU ni alohida try-catch — muvaffaqiyatsiz bo'lsa ham bank kurslari yuklansin
   try{
     let rates={};
-    const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),8000);
+    const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),5000);
     const r=await fetch('https://cbu.uz/uz/arkhiv-kursov-valyut/json/',{signal:ac.signal});
     clearTimeout(tid);
     const d=await r.json();
@@ -2215,19 +2215,32 @@ function setChartCur(cur,btn){
 }
 
 // ── LOAD ALL ──
+function _forceShowUI(){
+  const vl=document.getElementById('v-load');
+  const vb=document.getElementById('v-body');
+  if(vl&&vl.style.display!=='none'){
+    vl.style.display='none';
+    if(vb) vb.style.display='block';
+    if(!Object.keys(STATE.CBU).length){
+      const cl=document.getElementById('cbuList');
+      if(cl) cl.innerHTML=`<div class="ltxt" style="padding:14px 16px;font-size:12px;color:var(--text3)">⚠️ Ma'lumotlar yuklanmadi. Internet aloqasini tekshiring va yangilash tugmasini bosing.</div>`;
+    }
+  }
+}
 async function loadAll(){
   haptic('impact','medium');
   const btn=document.getElementById('refBtn');
   btn.classList.add('spin');
-  document.getElementById('v-load').style.display='flex';document.getElementById('v-body').style.display='none';
-  document.getElementById('c-load').style.display='flex';document.getElementById('c-body').style.display='none';
-  document.getElementById('m-load').style.display='flex';document.getElementById('m-body').style.display='none';
-  // Grafik loading holati — eski grafik o'chib, spinner ko'rinadi
-  const cw=document.getElementById('chartWrap');
-  if(cw) cw.innerHTML='<div class="chart-empty"><div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0 auto"></div></div>';
-  // loadChart alohida emas — loadBankRates ichida BANKS_URL bitta marta fetch qilinadi
+  // Cache bor bo'lsa — yashirin yangilaymiz (spinner ko'rsatilmaydi)
+  const hasCache=Object.keys(STATE.CBU).length>0;
+  if(!hasCache){
+    document.getElementById('v-load').style.display='flex';
+    document.getElementById('v-body').style.display='none';
+    // Maksimum 6 soniyada majburan UI ko'rsat
+    setTimeout(_forceShowUI, 6000);
+  }
   await Promise.all([loadCBU(),loadCrypto(),loadMetals()]);
-  loadP2P(); // P2P: alohida, bloklash kerak emas
+  loadP2P();
   btn.classList.remove('spin');
   doCalc();
 }
