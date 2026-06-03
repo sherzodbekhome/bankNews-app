@@ -220,34 +220,22 @@ async def main():
         logger.error("BOT_TOKEN o'rnatilmagan! .env faylini tekshiring.")
         sys.exit(1)
 
-    await on_startup()
-
-    try:
-        if WEBHOOK_URL:
-            await _run_webhook()
-        else:
-            await _run_polling()
-    finally:
-        await on_shutdown()
-
-
-async def _run_polling():
-    """Production + lokal: polling + aiohttp API server bir vaqtda"""
     from aiohttp import web
     from backend.api_server import create_app
     from backend.auth_handler import handle_auth_verify, handle_user_me, handle_user_alerts, handle_user_portfolio
     from backend.admin_handler import handle_admin_stats, handle_admin_broadcast, handle_admin_rate
     from backend.ai_handler import handle_ai_analyze
 
+    # ── 1. API Serverni BIRINCHI ishga tushirish (Render port topishi uchun) ──
     app = create_app()
-    app.router.add_post("/api/auth/verify",       handle_auth_verify)
-    app.router.add_get ("/api/user/me",            handle_user_me)
-    app.router.add_route("*", "/api/user/alerts",  handle_user_alerts)
+    app.router.add_post("/api/auth/verify",        handle_auth_verify)
+    app.router.add_get ("/api/user/me",             handle_user_me)
+    app.router.add_route("*", "/api/user/alerts",   handle_user_alerts)
     app.router.add_route("*", "/api/user/portfolio", handle_user_portfolio)
-    app.router.add_get ("/api/admin/stats",        handle_admin_stats)
-    app.router.add_post("/api/admin/broadcast",    handle_admin_broadcast)
-    app.router.add_post("/api/admin/rate",         handle_admin_rate)
-    app.router.add_get ("/api/ai/analyze",         handle_ai_analyze)
+    app.router.add_get ("/api/admin/stats",         handle_admin_stats)
+    app.router.add_post("/api/admin/broadcast",     handle_admin_broadcast)
+    app.router.add_post("/api/admin/rate",          handle_admin_rate)
+    app.router.add_get ("/api/ai/analyze",          handle_ai_analyze)
 
     port = int(os.environ.get("PORT", 8080))
     runner = web.AppRunner(app)
@@ -256,7 +244,20 @@ async def _run_polling():
     await site.start()
     logger.info(f"API server ishlamoqda: http://0.0.0.0:{port}")
 
-    # Polling fon taskida — API server bilan parallel
+    # ── 2. Keyin bot ishga tushirish ──
+    await on_startup()
+
+    try:
+        if WEBHOOK_URL:
+            await _run_webhook()
+        else:
+            await _run_polling(runner)
+    finally:
+        await on_shutdown()
+
+
+async def _run_polling(runner=None):
+    """Polling rejimi — API server allaqachon ishga tushgan"""
     await bot.delete_webhook(drop_pending_updates=True)
     polling_task = asyncio.create_task(
         dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
@@ -277,7 +278,8 @@ async def _run_polling():
 
     await stop_event.wait()
     polling_task.cancel()
-    await runner.cleanup()
+    if runner:
+        await runner.cleanup()
 
 
 async def _run_webhook():
