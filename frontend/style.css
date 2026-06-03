@@ -2196,6 +2196,6 @@ body::before,body::after{display:none}
 .cbu-diff.nt{color:var(--text3)}
 .brc-chev{font-size:16px;color:var(--border2);flex-shrink:0}
 
-/* ═══ HAMMA YOZUV LORA — global shrift ═══ */
-/* Butun ilova (matn, raqamlar, dinamik inline shriftlar) Lora'da */
-*,*::before,*::after{font-family:'Lora',Georgia,serif !important}
+/* ═══ HAMMA YOZUV INTER — global shrift ═══ */
+/* Butun ilova (matn, raqamlar, dinamik inline shriftlar) Inter'da */
+*,*::before,*::after{font-family:'Inter',-apple-system,'Segoe UI',sans-serif !important}
