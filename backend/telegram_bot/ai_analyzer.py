@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 from typing import Optional, Dict
 
-from core.config import GEMINI_API_KEY
+from core.config import GEMINI_API_KEYS
 
 logger = logging.getLogger(__name__)
 
@@ -30,23 +30,56 @@ _PERSONA = (
 
 
 class AIAnalyzer:
+    """
+    Gemini API key rotatsiyasi:
+    Bir kalit 429 (quota tugagan) qaytarsa — keyingi kalitga o'tadi.
+    Barcha kalitlar tugasa — None qaytaradi.
+    """
 
     def __init__(self):
-        self.client = (
-            genai.Client(api_key=GEMINI_API_KEY)
-            if GEMINI_AVAILABLE and GEMINI_API_KEY
-            else None
-        )
+        self._keys = GEMINI_API_KEYS[:]  # nusxa
+        self._idx = 0                     # joriy kalit indeksi
+        self._clients: Dict[str, any] = {}
+        self._build_clients()
+
+    def _build_clients(self):
+        if not GEMINI_AVAILABLE:
+            return
+        for key in self._keys:
+            if key and key not in self._clients:
+                try:
+                    self._clients[key] = genai.Client(api_key=key)
+                except Exception as e:
+                    logger.warning(f"Gemini kalit yaratishda xato: {e}")
+
+    @property
+    def client(self):
+        if not self._keys:
+            return None
+        key = self._keys[self._idx % len(self._keys)]
+        return self._clients.get(key)
+
+    def _next_key(self):
+        """Keyingi kalitga o'tish"""
+        if len(self._keys) > 1:
+            self._idx = (self._idx + 1) % len(self._keys)
+            logger.warning(f"Gemini kalit rotatsiyasi: {self._idx + 1}/{len(self._keys)}")
 
     async def _ask(self, prompt: str) -> Optional[str]:
-        if not self.client:
+        if not self._keys or not GEMINI_AVAILABLE:
             return None
         loop = asyncio.get_running_loop()
-        for attempt in range(2):
+
+        # Barcha kalitlarni bir marta sinab ko'rish
+        for _ in range(len(self._keys)):
+            client = self.client
+            if not client:
+                self._next_key()
+                continue
             try:
                 response = await loop.run_in_executor(
                     None,
-                    lambda: self.client.models.generate_content(
+                    lambda c=client: c.models.generate_content(
                         model=_MODEL,
                         contents=prompt,
                     )
@@ -54,12 +87,14 @@ class AIAnalyzer:
                 return response.text.strip()
             except Exception as e:
                 msg = str(e)
-                if "429" in msg and attempt == 0:
-                    logger.warning("Gemini 429 — 60s kutilmoqda...")
-                    await asyncio.sleep(60)
+                if "429" in msg or "RESOURCE_EXHAUSTED" in msg or "quota" in msg.lower():
+                    logger.warning(f"Gemini 429 — kalit {self._idx + 1} tugadi, keyingisiga o'tish...")
+                    self._next_key()
                     continue
                 logger.error(f"Gemini API xatosi: {e}")
                 return None
+
+        logger.error("Barcha Gemini kalitlari quota tugagan!")
         return None
 
     async def analyze_currency(
