@@ -854,83 +854,78 @@ function _renderP2POffers(){
 // ── STATE.CRYPTO ──
 const _CRYPTO_API='https://banknews-bot.onrender.com/api/crypto/top';
 
+// Manba funksiyalari — parallel chaqiriladi
+async function _cryptoFromBackend(usdRate){
+  const ac=new AbortController();
+  setTimeout(()=>ac.abort(),7000);
+  const r=await fetch(`${_CRYPTO_API}?usd_rate=${usdRate}`,{signal:ac.signal});
+  if(!r.ok) throw new Error(r.status);
+  const j=await r.json();
+  if(!j.ok||!Array.isArray(j.data)||j.data.length<5) throw new Error('empty');
+  const m={};
+  j.data.forEach(c=>{
+    const s=(c.symbol||'').toUpperCase();
+    if(s) m[s]={rank:c.rank||9999,name:c.name||s,image:c.image||'',cgId:c.id||'',
+      usd:c.price||0,change:c.change||0,uzs:c.uzs||(c.price||0)*usdRate,mcap:c.mcap||0,volume:c.volume||0};
+  });
+  if(Object.keys(m).length<5) throw new Error('too few');
+  return m;
+}
+
+async function _cryptoFromCoinGecko(usdRate){
+  const ac=new AbortController();
+  setTimeout(()=>ac.abort(),8000);
+  const r=await fetch(
+    'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h',
+    {signal:ac.signal});
+  if(!r.ok) throw new Error(r.status);
+  const arr=await r.json();
+  if(!Array.isArray(arr)||arr.length<5) throw new Error('empty');
+  const m={};
+  arr.forEach(c=>{
+    const s=(c.symbol||'').toUpperCase();
+    if(s) m[s]={rank:c.market_cap_rank||999,name:c.name||s,image:c.image||'',
+      cgId:c.id||'',usd:c.current_price||0,change:c.price_change_percentage_24h||0,
+      uzs:(c.current_price||0)*usdRate,mcap:c.market_cap||0,volume:c.total_volume||0};
+  });
+  if(Object.keys(m).length<5) throw new Error('too few');
+  return m;
+}
+
+async function _cryptoFromBinance(usdRate){
+  const PAIRS={BTC:'BTCUSDT',ETH:'ETHUSDT',BNB:'BNBUSDT',SOL:'SOLUSDT',TON:'TONUSDT',XRP:'XRPUSDT',ADA:'ADAUSDT',DOGE:'DOGEUSDT'};
+  const ac=new AbortController();
+  setTimeout(()=>ac.abort(),6000);
+  const r=await fetch(
+    `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(JSON.stringify(Object.values(PAIRS)))}`,
+    {signal:ac.signal});
+  const arr=await r.json();
+  if(!Array.isArray(arr)||arr.length<3) throw new Error('empty');
+  const m={};
+  arr.forEach(t=>{
+    const sym=Object.keys(PAIRS).find(k=>PAIRS[k]===t.symbol);
+    if(sym){const usd=parseFloat(t.lastPrice)||0,chg=parseFloat(t.priceChangePercent)||0;
+      if(usd>0) m[sym]={rank:999,name:sym,image:CLOGO[sym]||'',cgId:'',usd,change:chg,uzs:usd*usdRate,mcap:0,volume:0};}
+  });
+  m.USDT={rank:3,name:'Tether',image:CLOGO.USDT||'',cgId:'tether',usd:1,change:0,uzs:usdRate,mcap:0,volume:0};
+  if(Object.keys(m).length<3) throw new Error('too few');
+  return m;
+}
+
 async function loadCrypto(){
   const usdRate=STATE.USD_UZS||12500;
-  const crypto={};
-
-  // 1) Backend (250 ta, keshlangan)
+  // Uchala manbani PARALLEL yuborish — birinchi muvaffaqiyatli javob ishlatiladi
   try{
-    const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),8000);
-    const r=await fetch(`${_CRYPTO_API}?usd_rate=${usdRate}`,{signal:ac.signal});
-    clearTimeout(tid);
-    if(r.ok){
-      const json=await r.json();
-      if(json.ok&&Array.isArray(json.data)&&json.data.length>10){
-        json.data.forEach(c=>{
-          const sym=(c.symbol||'').toUpperCase();
-          if(!sym) return;
-          crypto[sym]={rank:c.rank||9999,name:c.name||sym,image:c.image||'',
-            cgId:c.id||'',usd:c.price||0,change:c.change||0,
-            uzs:c.uzs||(c.price||0)*usdRate,mcap:c.mcap||0,volume:c.volume||0};
-        });
-      }
-    }
-  }catch(_){}
-
-  // 2) CoinGecko to'g'ridan-to'g'ri (zaxira, top 50)
-  if(Object.keys(crypto).length<5){
-    try{
-      const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),9000);
-      const r=await fetch(
-        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h',
-        {signal:ac.signal});
-      clearTimeout(tid);
-      if(r.ok){
-        const arr=await r.json();
-        if(Array.isArray(arr)&&arr.length>5){
-          arr.forEach(c=>{
-            const sym=(c.symbol||'').toUpperCase();
-            if(!sym||crypto[sym]) return;
-            crypto[sym]={rank:c.market_cap_rank||999,name:c.name||sym,
-              image:c.image||'',cgId:c.id||'',usd:c.current_price||0,
-              change:c.price_change_percentage_24h||0,
-              uzs:(c.current_price||0)*usdRate,
-              mcap:c.market_cap||0,volume:c.total_volume||0};
-          });
-        }
-      }
-    }catch(_){}
-  }
-
-  // 3) Binance (eng ishonchli zaxira, top 5)
-  if(Object.keys(crypto).length<3){
-    try{
-      const PAIRS={BTC:'BTCUSDT',ETH:'ETHUSDT',BNB:'BNBUSDT',SOL:'SOLUSDT',TON:'TONUSDT'};
-      const ac=new AbortController(),tid=setTimeout(()=>ac.abort(),6000);
-      const r=await fetch(
-        `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(JSON.stringify(Object.values(PAIRS)))}`,
-        {signal:ac.signal});
-      clearTimeout(tid);
-      const arr=await r.json();
-      if(Array.isArray(arr)) arr.forEach(t=>{
-        const sym=Object.keys(PAIRS).find(k=>PAIRS[k]===t.symbol);
-        if(sym&&!crypto[sym]){
-          const usd=parseFloat(t.lastPrice)||0,chg=parseFloat(t.priceChangePercent)||0;
-          if(usd>0) crypto[sym]={rank:999,name:sym,image:CLOGO[sym]||'',
-            cgId:'',usd,change:chg,uzs:usd*usdRate,mcap:0,volume:0};
-        }
-      });
-      if(!crypto.USDT) crypto.USDT={rank:3,name:'Tether',image:CLOGO.USDT||'',
-        cgId:'tether',usd:1.0,change:0,uzs:usdRate,mcap:0,volume:0};
-    }catch(_){}
-  }
-
-  if(Object.keys(crypto).length<2){
+    const crypto=await Promise.any([
+      _cryptoFromBackend(usdRate),
+      _cryptoFromCoinGecko(usdRate),
+      _cryptoFromBinance(usdRate),
+    ]);
+    STATE.CRYPTO=crypto;
+    renderCrypto();
+  }catch(e){
     document.getElementById('c-load').innerHTML=`<div class="ltxt">❌ ${tx('err')}</div>`;
-    return;
   }
-  STATE.CRYPTO=crypto;
-  renderCrypto();
 }
 function renderCrypto(){
   document.getElementById('c-load').style.display='none';
