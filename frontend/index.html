@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="description" content="O'zbekiston banklari valyuta kurslari, kripto narxlari, kalkulyator va bozor tahlili.">
-<meta name="theme-color" content="#090e1c">
+<meta name="theme-color" content="#f4f6f9">
 <meta property="og:title" content="BankNews — Valyuta kurslari">
 <meta property="og:description" content="24 ta bank kursi, CBU, kripto, metallar — barchasi bir joyda.">
 <title>BankNews — Valyuta kurslari</title>
@@ -12,10 +12,10 @@
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@400;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body data-theme="dark">
+<body data-theme="light">
 
 
 <!-- HEADER -->
@@ -101,7 +101,7 @@
         <div class="row-between">
           <div class="flex-row">
             <div class="label-caps" data-i="cbu_rates">Markaziy Bank</div>
-            <div style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(232,192,74,0.12);color:var(--gold);border:1px solid rgba(232,192,74,0.22);letter-spacing:.4px">CBU</div>
+            <div style="font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(184,134,11,0.12);color:var(--accent);border:1px solid rgba(184,134,11,0.28);letter-spacing:.4px">CBU</div>
           </div>
           <div style="display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;color:var(--green);letter-spacing:.5px">
             <span style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);display:inline-block;animation:pulse 2s infinite"></span>LIVE
@@ -137,7 +137,7 @@
       <!-- ── FEATURE ROWS (AvtoPilot uslubi) ── -->
       <div class="frow-list">
         <div class="frow" onclick="document.getElementById('cbuSection').scrollIntoView({behavior:'smooth'})">
-          <div class="frow-ico" style="background:linear-gradient(135deg,#c4921e,#8a5e08)">
+          <div class="frow-ico" style="background:linear-gradient(135deg,#0a3b6e,#012347)">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/>
             </svg>
@@ -149,7 +149,7 @@
           <div class="frow-chev">›</div>
         </div>
         <div class="frow" onclick="openBankListPanel()">
-          <div class="frow-ico" style="background:linear-gradient(135deg,#1e6fd9,#1045a0)">
+          <div class="frow-ico" style="background:linear-gradient(135deg,#0a3b6e,#012347)">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11"/>
             </svg>
@@ -161,7 +161,7 @@
           <div class="frow-chev">›</div>
         </div>
         <div class="frow" onclick="openCryptoPanel()">
-          <div class="frow-ico" style="background:linear-gradient(135deg,#26a17b,#1a7a5e)">
+          <div class="frow-ico" style="background:linear-gradient(135deg,#0a3b6e,#012347)">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9h1.5a1.5 1.5 0 0 1 0 3H9m0-3v6m0-3h3"/></svg>
           </div>
           <div class="frow-txt">
@@ -171,7 +171,7 @@
           <div class="frow-chev">›</div>
         </div>
         <div class="frow" onclick="openMetalsPanel()">
-          <div class="frow-ico" style="background:linear-gradient(135deg,#d4a843,#a07820)">
+          <div class="frow-ico" style="background:linear-gradient(135deg,#b8860b,#7a5908)">
             <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 6v2m0 8v2m-4-5h8"/></svg>
           </div>
           <div class="frow-txt">
@@ -673,7 +673,7 @@
 
     <!-- Page title -->
     <div style="padding:20px 18px 10px">
-      <div style="font-size:26px;font-weight:900;color:#ffb300;letter-spacing:-.3px" data-i="soz_title">Sozlamalar</div>
+      <div style="font-size:26px;font-weight:700;color:var(--gold);letter-spacing:-.3px;font-family:'Merriweather',Georgia,serif" data-i="soz_title">Sozlamalar</div>
       <div style="font-size:12px;color:var(--text3);margin-top:2px" data-i="soz_sub">Til, korinish va bildirishnomalar</div>
     </div>
 
@@ -755,7 +755,7 @@
         <div class="soz-card">
           <div class="soz-row" onclick="openThemeSheet()">
             <div class="soz-row-l">
-              <div class="soz-row-ico" style="background:linear-gradient(135deg,rgba(124,92,252,.2),rgba(124,92,252,.08));color:var(--purple2)" id="sozThemeIco"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+              <div class="soz-row-ico" style="background:linear-gradient(135deg,rgba(0,51,102,.16),rgba(0,51,102,.06));color:var(--gold)" id="sozThemeIco"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
               <div>
                 <div class="soz-row-name">Ilova mavzusi</div>
                 <div class="soz-row-sub" id="sozThemeLbl">Qorong'i</div>
@@ -882,7 +882,7 @@
           </div>
         </div>
         <div class="prem-item">
-          <div class="prem-frow-ico" style="background:linear-gradient(135deg,#7c5cfc,#5a3cd8);color:#fff">
+          <div class="prem-frow-ico" style="background:linear-gradient(135deg,#0a3b6e,#012347);color:#fff">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/><path d="M8 3.8A9.9 9.9 0 0 1 12 3"/>
             </svg>
@@ -950,7 +950,7 @@
 
       <!-- Bot info -->
       <div class="prem-bot-info">
-        <div style="width:40px;height:40px;border-radius:12px;background:rgba(124,92,252,.15);border:1px solid rgba(124,92,252,.3);display:flex;align-items:center;justify-content:center;color:var(--purple2);flex-shrink:0">
+        <div style="width:40px;height:40px;border-radius:8px;background:rgba(0,51,102,.12);border:1px solid rgba(0,51,102,.25);display:flex;align-items:center;justify-content:center;color:var(--gold);flex-shrink:0">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="9" cy="17" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
         </div>
         <div>
@@ -1468,7 +1468,7 @@
         <div style="font-size:9px;font-weight:700;background:rgba(255,179,0,.12);border:1px solid rgba(255,179,0,.25);color:#ffb300;border-radius:4px;padding:2px 7px;letter-spacing:.5px">● Gemini AI</div>
       </div>
       <div id="cdAI">
-        <button onclick="loadCryptoAI()" style="width:100%;padding:13px;background:linear-gradient(135deg,#ffb300,#ff9500);border:none;border-radius:12px;color:#000;font-weight:800;font-size:13px;cursor:pointer">
+        <button onclick="loadCryptoAI()" style="width:100%;padding:13px;background:var(--gold);border:none;border-radius:6px;color:var(--on-gold);font-weight:800;font-size:13px;cursor:pointer">
           🤖 AI Tahlil qilish
         </button>
       </div>

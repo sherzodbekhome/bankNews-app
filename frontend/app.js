@@ -27,7 +27,7 @@ const STATE = {
   // Foydalanuvchi sozlamalari (localStorage dan yuklangan)
   METAL_UNIT: localStorage.getItem('bn_unit')  || 'oz',
   LANG:       localStorage.getItem('bn_lang')  || 'uz',
-  THEME:      localStorage.getItem('bn_theme') || (tg?.colorScheme) || 'dark',
+  THEME:      localStorage.getItem('bn_theme') || 'light',
   BANK_CUR:   localStorage.getItem('bn_cur')   || 'USD',
 
   // UI holati
@@ -231,7 +231,7 @@ function applyTheme(){
   document.getElementById('themeSvg').innerHTML=eff==='dark'
     ?'<path d="M17 12.5A7 7 0 0 1 7.5 3a7 7 0 1 0 9.5 9.5z"/>'
     :'<circle cx="10" cy="10" r="4"/><line x1="10" y1="1" x2="10" y2="3"/><line x1="10" y1="17" x2="10" y2="19"/><line x1="1" y1="10" x2="3" y2="10"/><line x1="17" y1="10" x2="19" y2="10"/><line x1="3.5" y1="3.5" x2="5" y2="5"/><line x1="15" y1="15" x2="16.5" y2="16.5"/><line x1="16.5" y1="3.5" x2="15" y2="5"/><line x1="5" y1="15" x2="3.5" y2="16.5"/>';
-  if(tg){try{tg.setHeaderColor(eff==='dark'?'#090e1c':'#f5f7fc');}catch(e){}try{tg.setBackgroundColor(eff==='dark'?'#090e1c':'#f5f7fc');}catch(e){}}
+  if(tg){try{tg.setHeaderColor(eff==='dark'?'#0a1628':'#f4f6f9');}catch(e){}try{tg.setBackgroundColor(eff==='dark'?'#0a1628':'#f4f6f9');}catch(e){}}
   const lv=THEME_LABELS[STATE.THEME]||THEME_LABELS.dark;
   const lbl=document.getElementById('sozThemeLbl');if(lbl)lbl.textContent=lv;
   const val=document.getElementById('sozThemeVal');if(val)val.textContent=lv;
