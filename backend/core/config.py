@@ -7,13 +7,11 @@ BOT_TOKEN       = os.getenv("BOT_TOKEN", "")
 ADMIN_ID        = int(os.getenv("ADMIN_ID", "0"))
 GEMINI_API_KEY  = os.getenv("GEMINI_API_KEY", "")
 
-# Bir nechta Gemini kalit — vergul bilan ajratilgan (rotatsiya uchun)
-# GEMINI_API_KEYS=key1,key2,key3,...
-# Bo'sh bo'lsa GEMINI_API_KEY ishlatiladi
-_raw_keys = os.getenv("GEMINI_API_KEYS", "")
+# Bir nechta Gemini kalit — ikki usulda berilishi mumkin:
+# 1) GEMINI_API_KEYS=key1,key2,key3  (yangi field)
+# 2) GEMINI_API_KEY=key1,key2,key3   (mavjud field, vergul bilan)
+_raw_keys = os.getenv("GEMINI_API_KEYS", "") or GEMINI_API_KEY
 GEMINI_API_KEYS: list = [k.strip() for k in _raw_keys.split(",") if k.strip()]
-if not GEMINI_API_KEYS and GEMINI_API_KEY:
-    GEMINI_API_KEYS = [GEMINI_API_KEY]
 
 # Kanal(lar) — vergul bilan ajratilgan (@channel yoki -100xxx)
 CHANNELS = [c.strip() for c in os.getenv("CHANNELS", "").split(",") if c.strip()]
