@@ -67,9 +67,32 @@ class ChannelScheduler:
 
     # ── Post yuboruvchi metodlar ──────────────────────────────────────────────
 
-    async def _send(self, text: str):
+    async def _acquire_post_lock(self, job_id: str, ttl: int = 300) -> bool:
+        """
+        Redis lock — faqat bitta instance post yuborsin.
+        True qaytarsa — lock olindi, post yuborish mumkin.
+        False qaytarsa — boshqa instance allaqachon yuboryapti.
+        """
+        try:
+            from core.redis_manager import redis_mgr
+            if redis_mgr._ok():
+                key = f"post_lock:{job_id}"
+                result = await redis_mgr._redis.set(key, "1", nx=True, ex=ttl)
+                return result is not None
+        except Exception:
+            pass
+        return True  # Redis yo'q bo'lsa — har doim ruxsat
+
+    async def _send(self, text: str, job_id: str = ""):
         if not self._bot or not self._channels:
             return
+
+        # Redis lock — ikki instance bir vaqtda post yubora olmasin
+        if job_id:
+            if not await self._acquire_post_lock(job_id):
+                logger.warning(f"Post lock band ({job_id}) — boshqa instance yuboryapti, o'tkazib yuborildi")
+                return
+
         for channel in self._channels:
             try:
                 await self._bot.send_message(
@@ -165,18 +188,22 @@ class ChannelScheduler:
         return text
 
     async def _post_currency(self):
+        from datetime import date
+        job_id = f"currency_{date.today().isoformat()}"
         try:
             text = await self.build_currency_text()
             if text:
-                await self._send(text)
+                await self._send(text, job_id=job_id)
         except Exception as e:
             logger.error(f"_post_currency xatosi: {e}", exc_info=True)
 
     async def _post_crypto_metals(self):
+        from datetime import date
+        job_id = f"crypto_{date.today().isoformat()}"
         try:
             text = await self.build_crypto_metals_text()
             if text:
-                await self._send(text)
+                await self._send(text, job_id=job_id)
         except Exception as e:
             logger.error(f"_post_crypto_metals xatosi: {e}", exc_info=True)
 
