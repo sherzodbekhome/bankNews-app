@@ -1142,8 +1142,8 @@ body::after{
 .soz-body{padding:16px 14px 88px}
 .soz-section{margin-bottom:22px}
 .soz-cat{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:0 2px}
-.soz-cat-line{width:3px;height:14px;border-radius:2px;flex-shrink:0}
-.soz-cat-lbl{font-size:10px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1.6px}
+.soz-cat-line{display:none}
+.soz-cat-lbl{font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1.6px}
 .soz-card{background:linear-gradient(145deg,var(--card),rgba(18,27,46,.95));border:1px solid var(--glass-border);border-radius:18px;overflow:hidden;box-shadow:0 6px 28px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05)}
 .soz-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;transition:background .12s;border-bottom:1px solid rgba(255,255,255,.04);position:relative}
 .soz-row:last-child{border-bottom:none}
