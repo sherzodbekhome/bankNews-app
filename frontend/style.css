@@ -16,6 +16,8 @@ html{
 /* Matn tanlash faqat input/textarea da ruxsat */
 body{user-select:none;-webkit-user-select:none}
 input,textarea,select{user-select:text;-webkit-user-select:text}
+/* Havolalar — standart ko'k tagchiziq va rangni o'chirish */
+a{color:inherit;text-decoration:none}
 
 /* ═══ DARK THEME (default) — Klassik chuqur navy + oltin ═══ */
 :root{
