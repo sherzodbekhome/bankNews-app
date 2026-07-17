@@ -280,14 +280,7 @@ class MetalsHandler:
         # Coinbase ishlamagan bo'lsa — metals.live zaxira
         if not result:
             try:
-                import ssl
-                ssl_ctx = ssl.create_default_context()
-                ssl_ctx.check_hostname = False
-                ssl_ctx.verify_mode = ssl.CERT_NONE
-                conn = aiohttp.TCPConnector(ssl=ssl_ctx)
-                async with aiohttp.ClientSession(
-                    connector=conn, timeout=_TIMEOUT
-                ) as s:
+                async with _session() as s:
                     async with s.get(MetalsHandler._URL_METALS) as r:
                         if r.status == 200:
                             data = await r.json(content_type=None)

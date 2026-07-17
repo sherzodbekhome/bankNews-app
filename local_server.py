@@ -5,7 +5,7 @@ Lokal server: statik fayllar + API proxy endpointlar
 - /api/admin/broadcast — broadcast xabar (bot orqali)
 - /api/admin/rate     — kurs boshqaruvi
 """
-import asyncio, json, os, sys
+import asyncio, hmac, json, os, sys
 from pathlib import Path
 
 _ROOT = Path(__file__).parent / "Sherzodbek.AI" / "backend"
@@ -18,7 +18,34 @@ load_dotenv(_ROOT / ".env")
 FRONTEND_DIR = Path(__file__).parent / "Sherzodbek.AI" / "frontend"
 PORT = 3000
 
-H = {"Access-Control-Allow-Origin": "*", "Content-Type": "application/json"}
+# CORS: faqat ruxsat etilgan originlar (env orqali sozlanadi, wildcard emas)
+_ALLOWED_ORIGINS = [
+    o.strip()
+    for o in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    if o.strip()
+]
+
+
+def _cors(request) -> dict:
+    origin = request.headers.get("Origin", "")
+    allow = origin if origin in _ALLOWED_ORIGINS else (_ALLOWED_ORIGINS[0] if _ALLOWED_ORIGINS else "")
+    headers = {"Content-Type": "application/json", "Vary": "Origin"}
+    if allow:
+        headers["Access-Control-Allow-Origin"] = allow
+    return headers
+
+
+def _is_admin(request) -> bool:
+    """Admin endpointlar uchun oddiy shared-secret tekshiruvi (fail-closed)."""
+    expected = os.getenv("ADMIN_API_TOKEN", "")
+    if not expected:
+        # Token sozlanmagan bo'lsa — hech kimga ruxsat berilmaydi
+        return False
+    provided = request.headers.get("X-Admin-Token", "")
+    auth = request.headers.get("Authorization", "")
+    if not provided and auth.startswith("Bearer "):
+        provided = auth[7:]
+    return bool(provided) and hmac.compare_digest(provided, expected)
 
 
 # ── AI tahlil ─────────────────────────────────────────────────────────────────
@@ -42,13 +69,15 @@ async def handle_ai(request):
 
         ai       = AIAnalyzer()
         analysis = await ai.analyze_market(currency_flat, crypto_flat, metals or {})
-        return web.Response(text=json.dumps({"ok": True, "analysis": analysis or "Tahlil mavjud emas."}), headers=H)
+        return web.Response(text=json.dumps({"ok": True, "analysis": analysis or "Tahlil mavjud emas."}), headers=_cors(request))
     except Exception as e:
-        return web.Response(text=json.dumps({"ok": False, "error": str(e)}), headers=H)
+        return web.Response(text=json.dumps({"ok": False, "error": str(e)}), headers=_cors(request))
 
 
 # ── Admin: statistika ─────────────────────────────────────────────────────────
 async def handle_admin_stats(request):
+    if not _is_admin(request):
+        return web.Response(text=json.dumps({"ok": False, "error": "Ruxsat yo'q"}), status=403, headers=_cors(request))
     try:
         from core.database import db
         stats = await db.get_global_stats()
@@ -59,7 +88,7 @@ async def handle_admin_stats(request):
             "web_users": web_users,
             "alerts": alerts,
             "tg_users": stats.get("total_users", 0),
-        }), headers=H)
+        }), headers=_cors(request))
     except Exception as e:
         return web.Response(text=json.dumps({
             "ok": True,
@@ -67,11 +96,13 @@ async def handle_admin_stats(request):
             "alerts": "—",
             "tg_users": "—",
             "note": f"DB ulanmagan: {e}"
-        }), headers=H)
+        }), headers=_cors(request))
 
 
 # ── Admin: broadcast ──────────────────────────────────────────────────────────
 async def handle_admin_broadcast(request):
+    if not _is_admin(request):
+        return web.Response(text=json.dumps({"ok": False, "error": "Ruxsat yo'q"}), status=403, headers=_cors(request))
     try:
         import os, sys
         ct = request.content_type or ""
@@ -92,7 +123,7 @@ async def handle_admin_broadcast(request):
             media_bytes = media_filename = media_ct = None
 
         if not text and not has_media:
-            return web.Response(text=json.dumps({"ok": False, "error": "Matn yoki media kerak"}), headers=H)
+            return web.Response(text=json.dumps({"ok": False, "error": "Matn yoki media kerak"}), headers=_cors(request))
 
         from core.config import BOT_TOKEN, ADMIN_ID
         from core.database import db
@@ -127,7 +158,7 @@ async def handle_admin_broadcast(request):
                 return web.Response(text=json.dumps({
                     "ok": True, "sent": 1, "failed": 0,
                     "note": "DB ulanmagan — faqat adminga yuborildi"
-                }), headers=H)
+                }), headers=_cors(request))
 
             # Barcha foydalanuvchilarga yuborish
             sent = 0; failed = 0
@@ -148,15 +179,17 @@ async def handle_admin_broadcast(request):
                 except Exception:
                     failed += 1
 
-            return web.Response(text=json.dumps({"ok": True, "sent": sent, "failed": failed}), headers=H)
+            return web.Response(text=json.dumps({"ok": True, "sent": sent, "failed": failed}), headers=_cors(request))
         finally:
             await bot.session.close()
     except Exception as e:
-        return web.Response(text=json.dumps({"ok": False, "error": str(e)}), headers=H)
+        return web.Response(text=json.dumps({"ok": False, "error": str(e)}), headers=_cors(request))
 
 
 # ── Admin: kurs saqlash ───────────────────────────────────────────────────────
 async def handle_admin_rate(request):
+    if not _is_admin(request):
+        return web.Response(text=json.dumps({"ok": False, "error": "Ruxsat yo'q"}), status=403, headers=_cors(request))
     try:
         data = await request.json()
         currency = data.get("currency", "USD").upper()
@@ -177,9 +210,9 @@ async def handle_admin_rate(request):
         local_rates["overrides"][currency] = {"buy": buy, "sell": sell}
         rates_file.write_text(json.dumps(local_rates, ensure_ascii=False, indent=2), encoding="utf-8")
 
-        return web.Response(text=json.dumps({"ok": True, "currency": currency, "buy": buy, "sell": sell}), headers=H)
+        return web.Response(text=json.dumps({"ok": True, "currency": currency, "buy": buy, "sell": sell}), headers=_cors(request))
     except Exception as e:
-        return web.Response(text=json.dumps({"ok": False, "error": str(e)}), headers=H)
+        return web.Response(text=json.dumps({"ok": False, "error": str(e)}), headers=_cors(request))
 
 
 # ── Statik fayllar ────────────────────────────────────────────────────────────
@@ -196,20 +229,20 @@ async def handle_static(request):
 # ── User API (lokal stub) ─────────────────────────────────────────────────────
 async def handle_user_alerts(request):
     if request.method == 'GET':
-        return web.Response(text=json.dumps({"ok": True, "alerts": []}), headers=H)
+        return web.Response(text=json.dumps({"ok": True, "alerts": []}), headers=_cors(request))
     if request.method == 'POST':
-        return web.Response(text=json.dumps({"ok": True}), headers=H)
+        return web.Response(text=json.dumps({"ok": True}), headers=_cors(request))
     if request.method == 'DELETE':
-        return web.Response(text=json.dumps({"ok": True}), headers=H)
+        return web.Response(text=json.dumps({"ok": True}), headers=_cors(request))
     raise web.HTTPMethodNotAllowed(request.method, ['GET','POST','DELETE'])
 
 async def handle_user_portfolio(request):
     if request.method == 'GET':
-        return web.Response(text=json.dumps({"ok": True, "portfolio": []}), headers=H)
-    return web.Response(text=json.dumps({"ok": True}), headers=H)
+        return web.Response(text=json.dumps({"ok": True, "portfolio": []}), headers=_cors(request))
+    return web.Response(text=json.dumps({"ok": True}), headers=_cors(request))
 
 async def handle_user_me(request):
-    return web.Response(text=json.dumps({"ok": True, "user": None}), headers=H)
+    return web.Response(text=json.dumps({"ok": True, "user": None}), headers=_cors(request))
 
 # ── App ───────────────────────────────────────────────────────────────────────
 app = web.Application()
