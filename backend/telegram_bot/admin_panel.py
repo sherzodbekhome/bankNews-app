@@ -243,6 +243,7 @@ def register_admin_handlers(dp, bot, ADMIN_ID: int, CHANNELS: list):
             await callback.message.answer(text, parse_mode="HTML", reply_markup=keyboard)
 
         except Exception as e:
+            logger.error(f"CBU dan yangilashda xato: {e}", exc_info=True)
             await callback.message.answer(f"❌ Xato: {e}")
 
     @dp.callback_query(lambda c: c.data == "admin_back")

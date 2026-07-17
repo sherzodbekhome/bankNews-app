@@ -79,8 +79,11 @@ class ChannelScheduler:
                 key = f"post_lock:{job_id}"
                 result = await redis_mgr._redis.set(key, "1", nx=True, ex=ttl)
                 return result is not None
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(
+                f"Post lock ({job_id}) olishda Redis xatosi — postga ruxsat "
+                f"beriladi (dublikat post xavfi): {e}"
+            )
         return True  # Redis yo'q bo'lsa — har doim ruxsat
 
     async def _send(self, text: str, job_id: str = ""):

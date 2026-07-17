@@ -35,9 +35,11 @@ async def _verify_admin(request: web.Request):
         decoded = fb_auth.verify_id_token(token)
         email = decoded.get("email", "")
         if email not in ADMIN_EMAILS:
+            logger.warning(f"Admin ruxsati rad etildi: {email!r} ADMIN_EMAILS da yo'q")
             return None
         return decoded
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Admin token tekshirishda xato: {e}")
         return None
 
 
@@ -158,8 +160,9 @@ async def handle_admin_broadcast(request: web.Request) -> web.Response:
 
                     sent += 1
                     await asyncio.sleep(0.05)   # flood control ~20 msg/s
-                except Exception:
+                except Exception as e:
                     failed += 1
+                    logger.debug(f"Broadcast uid={uid} ga yuborilmadi: {e}")
 
             return web.json_response({"ok": True, "sent": sent, "failed": failed})
 

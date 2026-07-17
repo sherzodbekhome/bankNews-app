@@ -52,8 +52,8 @@ class RedisManager:
         if self._redis:
             try:
                 await self._redis.aclose()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Redis yopishda xato: {e}")
 
     def _ok(self) -> bool:
         return self._redis is not None
@@ -110,8 +110,8 @@ class RedisManager:
             return
         try:
             await self._redis.setex(key, ttl, json.dumps(value, ensure_ascii=False))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Redis set_cache xatosi ({key}): {e}")
 
     async def get_cache(self, key: str) -> Any:
         if not self._ok():
@@ -119,7 +119,8 @@ class RedisManager:
         try:
             raw = await self._redis.get(key)
             return json.loads(raw) if raw else None
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Redis get_cache xatosi ({key}): {e}")
             return None
 
 

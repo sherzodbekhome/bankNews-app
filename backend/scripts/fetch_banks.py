@@ -116,8 +116,8 @@ async def fetch_cbu():
             if ccy in ("USD", "EUR", "RUB"):
                 try:
                     rates[ccy] = round(float(item["Rate"]), 2)
-                except Exception:
-                    pass
+                except Exception as e:
+                    print(f"WARN: CBU {ccy} kursini o'qib bo'lmadi: {e}", file=sys.stderr)
         return rates if rates else None
     except Exception as e:
         print(f"CBU xatosi: {e}", file=sys.stderr)
@@ -145,8 +145,11 @@ async def main():
         with open("banks_data.json", "r", encoding="utf-8") as f:
             old = json.load(f)
             history = old.get("history", [])
-    except Exception:
-        pass
+    except FileNotFoundError:
+        pass  # Birinchi ishga tushirish — history hali yo'q
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"WARN: eski banks_data.json o'qib bo'lmadi, history tashlab yuborildi: {e}",
+              file=sys.stderr)
 
     # Bugungi CBU kurslarini tariхga qo'shish
     if cbu:

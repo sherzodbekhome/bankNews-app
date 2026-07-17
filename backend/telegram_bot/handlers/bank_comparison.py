@@ -82,5 +82,9 @@ async def cb_banklar(call: CallbackQuery):
         await call.message.edit_text(
             text, parse_mode="HTML", reply_markup=_kb(currency, sort_by)
         )
-    except Exception:
-        pass
+    except Exception as e:
+        # "message is not modified" — foydalanuvchi bir xil tugmani bosgan, zararsiz
+        if "message is not modified" in str(e).lower():
+            logger.debug(f"edit_text o'tkazib yuborildi: {e}")
+        else:
+            logger.warning(f"Bank taqqoslash xabarini yangilab bo'lmadi: {e}")

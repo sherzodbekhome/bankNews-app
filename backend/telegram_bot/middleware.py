@@ -78,8 +78,8 @@ class ErrorLoggingMiddleware(BaseMiddleware):
                     component=component,
                     severity="error",
                 )
-            except Exception:
-                pass
+            except Exception as log_err:
+                logger.debug(f"Xatoni DB ga yozib bo'lmadi: {log_err}")
             logger.error(f"Handler error: {e}")
             raise
 

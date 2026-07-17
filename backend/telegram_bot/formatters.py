@@ -1,8 +1,11 @@
 """
 Post xabarlarni formatlash
 """
+import logging
 from datetime import datetime
 from typing import Dict, Optional
+
+logger = logging.getLogger(__name__)
 
 
 class MessageFormatter:
@@ -24,7 +27,8 @@ class MessageFormatter:
             from core.cache_manager import CacheManager
             currency_cache = CacheManager.get_cache('currency')
             usd_to_uzs = currency_cache.get('USD', 12500) if currency_cache else 12500
-        except Exception:
+        except Exception as e:
+            logger.debug(f"USD kursi cache dan olinmadi, default ishlatiladi: {e}")
             usd_to_uzs = 12500
 
         gold_oz_uzs = int(gold_oz * usd_to_uzs)
@@ -63,7 +67,8 @@ class MessageFormatter:
                 from core.cache_manager import CacheManager
                 currency_cache = CacheManager.get_cache('currency')
                 usd_to_uzs = currency_cache.get('USD', 12500) if currency_cache else 12500
-            except Exception:
+            except Exception as e:
+                logger.debug(f"USD kursi cache dan olinmadi, default ishlatiladi: {e}")
                 usd_to_uzs = 12500
 
         date_str = datetime.now().strftime('%d.%m.%Y')

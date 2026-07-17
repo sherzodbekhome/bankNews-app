@@ -71,5 +71,6 @@ def _calc_signals(usd: float, currency_data: dict) -> dict:
         hold = "🟡 Kutish"
 
         return {"buy": buy, "sell": sell, "hold": hold}
-    except Exception:
+    except Exception as e:
+        logger.debug(f"_calc_signals xatosi: {e}")
         return {"buy": "—", "sell": "—", "hold": "—"}

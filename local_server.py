@@ -5,8 +5,12 @@ Lokal server: statik fayllar + API proxy endpointlar
 - /api/admin/broadcast — broadcast xabar (bot orqali)
 - /api/admin/rate     — kurs boshqaruvi
 """
-import asyncio, json, os, sys
+import asyncio, json, logging, os, sys
 from pathlib import Path
+
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger(__name__)
 
 _ROOT = Path(__file__).parent / "Sherzodbek.AI" / "backend"
 sys.path.insert(0, str(_ROOT))
@@ -44,6 +48,7 @@ async def handle_ai(request):
         analysis = await ai.analyze_market(currency_flat, crypto_flat, metals or {})
         return web.Response(text=json.dumps({"ok": True, "analysis": analysis or "Tahlil mavjud emas."}), headers=H)
     except Exception as e:
+        logger.error(f"/api/ai/analyze xatosi: {e}", exc_info=True)
         return web.Response(text=json.dumps({"ok": False, "error": str(e)}), headers=H)
 
 
@@ -61,6 +66,7 @@ async def handle_admin_stats(request):
             "tg_users": stats.get("total_users", 0),
         }), headers=H)
     except Exception as e:
+        logger.warning(f"/api/admin/stats — DB ulanmagan: {e}")
         return web.Response(text=json.dumps({
             "ok": True,
             "web_users": "—",
@@ -145,13 +151,15 @@ async def handle_admin_broadcast(request):
                         await bot.send_message(uid, text)
                     sent += 1
                     import asyncio; await asyncio.sleep(0.05)
-                except Exception:
+                except Exception as e:
                     failed += 1
+                    logger.debug(f"Broadcast uid={uid} ga yuborilmadi: {e}")
 
             return web.Response(text=json.dumps({"ok": True, "sent": sent, "failed": failed}), headers=H)
         finally:
             await bot.session.close()
     except Exception as e:
+        logger.error(f"/api/admin/broadcast xatosi: {e}", exc_info=True)
         return web.Response(text=json.dumps({"ok": False, "error": str(e)}), headers=H)
 
 
@@ -169,8 +177,8 @@ async def handle_admin_rate(request):
         if rates_file.exists():
             try:
                 local_rates = json.loads(rates_file.read_text(encoding="utf-8"))
-            except Exception:
-                pass
+            except (json.JSONDecodeError, OSError) as e:
+                logger.warning(f"Mavjud banks_data.json o'qib bo'lmadi, qaytadan yaratiladi: {e}")
 
         if "overrides" not in local_rates:
             local_rates["overrides"] = {}
@@ -179,6 +187,7 @@ async def handle_admin_rate(request):
 
         return web.Response(text=json.dumps({"ok": True, "currency": currency, "buy": buy, "sell": sell}), headers=H)
     except Exception as e:
+        logger.error(f"/api/admin/rate xatosi: {e}", exc_info=True)
         return web.Response(text=json.dumps({"ok": False, "error": str(e)}), headers=H)
 
 

@@ -128,6 +128,7 @@ async def handle_user_me(request: web.Request) -> web.Response:
         user = await db.get_web_user(info["uid"])
         return web.json_response({"ok": True, "user": user or info})
     except Exception as e:
+        logger.error(f"user/me xatosi: {e}", exc_info=True)
         return web.json_response({"ok": False, "error": str(e)}, status=500)
 
 

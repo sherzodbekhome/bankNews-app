@@ -150,8 +150,8 @@ async def _send_startup_posts_to_admin():
         logger.error(f"Startup postlarini tayyorlashda xato: {e}", exc_info=True)
         try:
             await bot.send_message(ADMIN_ID, f"⚠️ Post yuborishda xato: <code>{e}</code>")
-        except Exception:
-            pass
+        except Exception as notify_err:
+            logger.debug(f"Adminni xato haqida ogohlantirib bo'lmadi: {notify_err}")
 
 
 # ── Startup / Shutdown ────────────────────────────────────────────────────────

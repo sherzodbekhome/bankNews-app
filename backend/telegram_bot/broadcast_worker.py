@@ -60,8 +60,8 @@ class BroadcastWorker:
                     retry_after = 5
                     try:
                         retry_after = int(err.split("retry after ")[-1])
-                    except Exception:
-                        pass
+                    except Exception as parse_err:
+                        logger.debug(f"retry_after o'qib bo'lmadi, {retry_after}s ishlatiladi: {parse_err}")
                     logger.warning(f"Rate limit 429 — {retry_after}s kutamiz")
                     await asyncio.sleep(retry_after)
                 else:
@@ -113,12 +113,12 @@ class BroadcastWorker:
         self._running = False
         try:
             await self.bot.session.close()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Bot sessiyasini yopishda xato: {e}")
         try:
             await self.redis.aclose()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Redis ulanishini yopishda xato: {e}")
         logger.info("Worker yopildi")
 
 

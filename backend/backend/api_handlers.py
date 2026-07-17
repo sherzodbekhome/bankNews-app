@@ -61,8 +61,8 @@ class CBUHandler:
                     diff = round(float(item.get("Diff", 0)), 2)
                     date = item.get("Date", "")
                     result[ccy] = {"rate": rate, "diff": diff, "date": date}
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"CBU element o'qib bo'lmadi ({ccy}): {e}")
             return result or None
         except Exception as e:
             logger.error(f"CBUHandler xatosi: {e}")
