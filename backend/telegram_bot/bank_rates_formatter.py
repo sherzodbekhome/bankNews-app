@@ -6,6 +6,8 @@ import logging
 from datetime import datetime
 from typing import Any, Dict
 
+from core.formatting import num
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,11 +30,11 @@ class BankRatesFormatter:
         def arrow(d): return "⬆️" if d > 0 else "⬇️" if d < 0 else "➡️"
 
         block = f"🏛 <b>CBU rasmiy kursi | Официальный курс ЦБ</b>\n"
-        block += f"  🇺🇸 USD: <b>{usd:,.2f}</b> so'm  {arrow(diff_usd)} {diff_usd:+.2f}\n".replace(",", " ")
+        block += f"  🇺🇸 USD: <b>{num(usd, 2)}</b> so'm  {arrow(diff_usd)} {num(diff_usd, 2, sign=True)}\n"
         if eur:
-            block += f"  🇪🇺 EUR: <b>{eur:,.2f}</b> so'm  {arrow(diff_eur)} {diff_eur:+.2f}\n".replace(",", " ")
+            block += f"  🇪🇺 EUR: <b>{num(eur, 2)}</b> so'm  {arrow(diff_eur)} {num(diff_eur, 2, sign=True)}\n"
         if rub:
-            block += f"  🇷🇺 RUB: <b>{rub:,.2f}</b> so'm  {arrow(diff_rub)} {diff_rub:+.2f}\n".replace(",", " ")
+            block += f"  🇷🇺 RUB: <b>{num(rub, 2)}</b> so'm  {arrow(diff_rub)} {num(diff_rub, 2, sign=True)}\n"
         return block
 
     @staticmethod
@@ -62,7 +64,7 @@ class BankRatesFormatter:
             buying = sorted(bank_data['buying_usd'], key=lambda x: x[1], reverse=True)[:10]
             message += "💵 <b>USD sotib olish | Покупка:</b>\n"
             for name, rate in buying:
-                message += f"  {name} — <b>{rate:,}</b>\n".replace(",", " ")
+                message += f"  {name} — <b>{num(rate)}</b>\n"
             message += f"{BOT_LINK}\n\n"
 
         # ── USD sotish — TOP 10 (eng arzoni) ──
@@ -70,7 +72,7 @@ class BankRatesFormatter:
             selling = sorted(bank_data['selling_usd'], key=lambda x: x[1])[:10]
             message += "💵 <b>USD sotish | Продажа:</b>\n"
             for name, rate in selling:
-                message += f"  {name} — <b>{rate:,}</b>\n".replace(",", " ")
+                message += f"  {name} — <b>{num(rate)}</b>\n"
             message += f"{BOT_LINK}\n\n"
 
         # ── RUB sotib olish — TOP 5 (eng qimati) ──
@@ -78,7 +80,7 @@ class BankRatesFormatter:
             buying_rub = sorted(bank_data['buying_rub'], key=lambda x: x[1], reverse=True)[:5]
             message += "🇷🇺 <b>RUB sotib olish | Покупка:</b>\n"
             for name, rate in buying_rub:
-                message += f"  {name} — <b>{rate:,}</b>\n".replace(",", " ")
+                message += f"  {name} — <b>{num(rate)}</b>\n"
             message += f"{BOT_LINK}\n\n"
 
         message = message.rstrip()

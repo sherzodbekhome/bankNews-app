@@ -47,6 +47,20 @@ async def get_cached_crypto_data() -> Optional[Dict]:
     return CacheManager.get_cache("crypto")
 
 
+def get_usd_uzs_rate(default: float = 12500) -> float:
+    """
+    Cache dan USD→UZS kursini oladi, bo'lmasa `default` qaytaradi.
+    Formatlovchi modullarda takrorlanuvchi cache-o'qish idiomasini almashtiradi.
+    """
+    try:
+        currency_cache = CacheManager.get_cache("currency")
+        if currency_cache:
+            return float(currency_cache.get("USD", default)) or default
+    except Exception:
+        pass
+    return default
+
+
 # ── Arxa fon yangilovchi ───────────────────────────────────────────────────────
 
 class CacheUpdater:

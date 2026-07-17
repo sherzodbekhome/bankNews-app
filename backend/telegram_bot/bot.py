@@ -221,21 +221,11 @@ async def main():
         sys.exit(1)
 
     from aiohttp import web
-    from backend.api_server import create_app
-    from backend.auth_handler import handle_auth_verify, handle_user_me, handle_user_alerts, handle_user_portfolio
-    from backend.admin_handler import handle_admin_stats, handle_admin_broadcast, handle_admin_rate
-    from backend.ai_handler import handle_ai_analyze
+    from backend.api_server import create_app, register_extra_routes
 
     # ── 1. API Serverni BIRINCHI ishga tushirish (Render port topishi uchun) ──
     app = create_app()
-    app.router.add_post("/api/auth/verify",        handle_auth_verify)
-    app.router.add_get ("/api/user/me",             handle_user_me)
-    app.router.add_route("*", "/api/user/alerts",   handle_user_alerts)
-    app.router.add_route("*", "/api/user/portfolio", handle_user_portfolio)
-    app.router.add_get ("/api/admin/stats",         handle_admin_stats)
-    app.router.add_post("/api/admin/broadcast",     handle_admin_broadcast)
-    app.router.add_post("/api/admin/rate",          handle_admin_rate)
-    app.router.add_get ("/api/ai/analyze",          handle_ai_analyze)
+    register_extra_routes(app)
 
     port = int(os.environ.get("PORT", 8080))
     runner = web.AppRunner(app)
@@ -286,28 +276,12 @@ async def _run_webhook():
     """Production: aiohttp server — API + Webhook bir portda"""
     from aiohttp import web
     from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
-    from backend.api_server import create_app
-    from backend.auth_handler import handle_auth_verify, handle_user_me, handle_user_alerts, handle_user_portfolio
-    from backend.admin_handler import handle_admin_stats, handle_admin_broadcast, handle_admin_rate
-    from backend.ai_handler import handle_ai_analyze
+    from backend.api_server import create_app, register_extra_routes
 
     full_webhook = WEBHOOK_URL.rstrip("/") + WEBHOOK_PATH
 
     app = create_app()
-
-    # Auth / User routes
-    app.router.add_post("/api/auth/verify",      handle_auth_verify)
-    app.router.add_get ("/api/user/me",           handle_user_me)
-    app.router.add_route("*", "/api/user/alerts", handle_user_alerts)
-    app.router.add_route("*", "/api/user/portfolio", handle_user_portfolio)
-
-    # Admin routes
-    app.router.add_get ("/api/admin/stats",      handle_admin_stats)
-    app.router.add_post("/api/admin/broadcast",  handle_admin_broadcast)
-    app.router.add_post("/api/admin/rate",       handle_admin_rate)
-
-    # AI route
-    app.router.add_get("/api/ai/analyze", handle_ai_analyze)
+    register_extra_routes(app)
 
     SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=WEBHOOK_PATH)
 

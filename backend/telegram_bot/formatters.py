@@ -4,6 +4,9 @@ Post xabarlarni formatlash
 from datetime import datetime
 from typing import Dict, Optional
 
+from core.cache_manager import get_usd_uzs_rate
+from core.formatting import num
+
 
 class MessageFormatter:
     """Xabarlarni chiroyli formatda yaratish"""
@@ -20,12 +23,7 @@ class MessageFormatter:
         gold_g = gold_oz / TROY_OZ_TO_G
         silver_g = silver_oz / TROY_OZ_TO_G
 
-        try:
-            from core.cache_manager import CacheManager
-            currency_cache = CacheManager.get_cache('currency')
-            usd_to_uzs = currency_cache.get('USD', 12500) if currency_cache else 12500
-        except Exception:
-            usd_to_uzs = 12500
+        usd_to_uzs = get_usd_uzs_rate()
 
         gold_oz_uzs = int(gold_oz * usd_to_uzs)
         gold_g_uzs = int(gold_g * usd_to_uzs)
@@ -35,14 +33,14 @@ class MessageFormatter:
         message = "💰 <b>Qimmatbaho metallar | Драгоценные металлы</b>\n\n"
 
         message += "💵 <b>Dolarda | В долларах:</b>\n"
-        message += f"🥇 Oltin | Золото: <b>${gold_oz:,.2f}/oz</b>  |  <b>${gold_g:.2f}/g</b>\n".replace(",", " ")
+        message += f"🥇 Oltin | Золото: <b>${num(gold_oz, 2)}/oz</b>  |  <b>${gold_g:.2f}/g</b>\n"
         if silver_oz > 0:
-            message += f"🥈 Kumush | Серебро: <b>${silver_oz:,.2f}/oz</b>  |  <b>${silver_g:.3f}/g</b>\n".replace(",", " ")
+            message += f"🥈 Kumush | Серебро: <b>${num(silver_oz, 2)}/oz</b>  |  <b>${silver_g:.3f}/g</b>\n"
 
         message += "\n🇺🇿 <b>So'mda | В сумах:</b>\n"
-        message += f"🥇 Oltin | Золото: <b>{gold_oz_uzs:,} so'm/oz</b>  |  <b>{gold_g_uzs:,} so'm/g</b>\n".replace(",", " ")
+        message += f"🥇 Oltin | Золото: <b>{num(gold_oz_uzs)} so'm/oz</b>  |  <b>{num(gold_g_uzs)} so'm/g</b>\n"
         if silver_oz > 0:
-            message += f"🥈 Kumush | Серебро: <b>{silver_oz_uzs:,} so'm/oz</b>  |  <b>{silver_g_uzs:,} so'm/g</b>\n".replace(",", " ")
+            message += f"🥈 Kumush | Серебро: <b>{num(silver_oz_uzs)} so'm/oz</b>  |  <b>{num(silver_g_uzs)} so'm/g</b>\n"
 
         return message
     
@@ -59,12 +57,7 @@ class MessageFormatter:
         if usd_rate and usd_rate > 0:
             usd_to_uzs = usd_rate
         else:
-            try:
-                from core.cache_manager import CacheManager
-                currency_cache = CacheManager.get_cache('currency')
-                usd_to_uzs = currency_cache.get('USD', 12500) if currency_cache else 12500
-            except Exception:
-                usd_to_uzs = 12500
+            usd_to_uzs = get_usd_uzs_rate()
 
         date_str = datetime.now().strftime('%d.%m.%Y')
         usdt_uzs = int(usd_to_uzs)
@@ -76,32 +69,32 @@ class MessageFormatter:
         message += "— USDT — $1.00\n"
 
         if 'BTC' in crypto:
-            message += f"— BTC — ${crypto['BTC']:,.0f}\n".replace(",", " ")
+            message += f"— BTC — ${num(crypto['BTC'])}\n"
 
         if 'ETH' in crypto:
-            message += f"— ETH — ${crypto['ETH']:,.0f}\n".replace(",", " ")
+            message += f"— ETH — ${num(crypto['ETH'])}\n"
 
         if 'SOL' in crypto:
-            message += f"— SOL — ${crypto['SOL']:,.0f}\n".replace(",", " ")
+            message += f"— SOL — ${num(crypto['SOL'])}\n"
 
         if 'TON' in crypto:
-            message += f"— TON — ${crypto['TON']:,.2f}\n".replace(",", " ")
+            message += f"— TON — ${num(crypto['TON'], 2)}\n"
 
         # Som section SECOND
         message += "\n🇺🇿 <b>So'mda | В сумах:</b>\n"
-        message += f"— USDT — {usdt_uzs:,} so'm\n".replace(",", " ")
+        message += f"— USDT — {num(usdt_uzs)} so'm\n"
 
         if 'BTC' in crypto:
-            message += f"— BTC — {int(crypto['BTC'] * usd_to_uzs):,} so'm\n".replace(",", " ")
+            message += f"— BTC — {num(int(crypto['BTC'] * usd_to_uzs))} so'm\n"
 
         if 'ETH' in crypto:
-            message += f"— ETH — {int(crypto['ETH'] * usd_to_uzs):,} so'm\n".replace(",", " ")
+            message += f"— ETH — {num(int(crypto['ETH'] * usd_to_uzs))} so'm\n"
 
         if 'SOL' in crypto:
-            message += f"— SOL — {int(crypto['SOL'] * usd_to_uzs):,} so'm\n".replace(",", " ")
+            message += f"— SOL — {num(int(crypto['SOL'] * usd_to_uzs))} so'm\n"
 
         if 'TON' in crypto:
-            message += f"— TON — {int(crypto['TON'] * usd_to_uzs):,} so'm\n".replace(",", " ")
+            message += f"— TON — {num(int(crypto['TON'] * usd_to_uzs))} so'm\n"
 
         return message
 

@@ -10,21 +10,9 @@ from typing import Dict, Optional, Tuple
 import aiohttp
 from bs4 import BeautifulSoup
 
+from core.http import DEFAULT_TIMEOUT, USER_AGENT, make_session
+
 logger = logging.getLogger(__name__)
-
-_TIMEOUT = aiohttp.ClientTimeout(total=15, connect=8)
-_UA = (
-    "Mozilla/5.0 (X11; Linux x86_64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/124.0.0.0 Safari/537.36"
-)
-
-
-def _session() -> aiohttp.ClientSession:
-    return aiohttp.ClientSession(
-        headers={"User-Agent": _UA},
-        timeout=_TIMEOUT,
-    )
 
 
 # ── CBU (Markaziy Bank) ────────────────────────────────────────────────────────
@@ -42,7 +30,7 @@ class CBUHandler:
         }
         """
         try:
-            async with _session() as s:
+            async with make_session() as s:
                 async with s.get(
                     CBUHandler._URL,
                     headers={"Accept": "application/json"},
@@ -74,7 +62,7 @@ class CBUHandler:
 class BankUzHandler:
     _URL = "https://bank.uz/uz/currency"
     _HEADERS = {
-        "User-Agent": _UA,
+        "User-Agent": USER_AGENT,
         "Accept": "text/html,application/xhtml+xml",
         "Accept-Language": "uz,en;q=0.5",
         "Referer": "https://bank.uz/",
@@ -125,7 +113,7 @@ class BankUzHandler:
         """
         try:
             async with aiohttp.ClientSession(
-                headers=BankUzHandler._HEADERS, timeout=_TIMEOUT
+                headers=BankUzHandler._HEADERS, timeout=DEFAULT_TIMEOUT
             ) as s:
                 async with s.get(BankUzHandler._URL) as r:
                     if r.status != 200:
@@ -187,7 +175,7 @@ class CryptoHandler:
         # 1) Binance
         try:
             params = {"symbols": str(CryptoHandler._BINANCE_SYMBOLS).replace("'", '"')}
-            async with _session() as s:
+            async with make_session() as s:
                 async with s.get(CryptoHandler._BINANCE_URL, params=params) as r:
                     if r.status == 200:
                         data = await r.json(content_type=None)
@@ -212,7 +200,7 @@ class CryptoHandler:
 
         # 2) CoinGecko — zaxira
         try:
-            async with _session() as s:
+            async with make_session() as s:
                 async with s.get(CryptoHandler._CG_URL) as r:
                     if r.status == 200:
                         raw = await r.json(content_type=None)
@@ -252,8 +240,8 @@ class MetalsHandler:
     @staticmethod
     async def _coinbase_price(url: str) -> Optional[float]:
         try:
-            async with _session() as s:
-                async with s.get(url, timeout=_TIMEOUT) as r:
+            async with make_session() as s:
+                async with s.get(url, timeout=DEFAULT_TIMEOUT) as r:
                     if r.status != 200:
                         return None
                     data = await r.json(content_type=None)
@@ -286,7 +274,7 @@ class MetalsHandler:
                 ssl_ctx.verify_mode = ssl.CERT_NONE
                 conn = aiohttp.TCPConnector(ssl=ssl_ctx)
                 async with aiohttp.ClientSession(
-                    connector=conn, timeout=_TIMEOUT
+                    connector=conn, timeout=DEFAULT_TIMEOUT
                 ) as s:
                     async with s.get(MetalsHandler._URL_METALS) as r:
                         if r.status == 200:
@@ -303,7 +291,7 @@ class MetalsHandler:
         # Hali ham oltin yo'q — PAXG
         if "Gold" not in result:
             try:
-                async with _session() as s:
+                async with make_session() as s:
                     async with s.get(MetalsHandler._URL_PAXG) as r:
                         if r.status == 200:
                             raw = await r.json(content_type=None)
@@ -338,7 +326,7 @@ class CryptoTopHandler:
         if cls._cache and (now - cls._cache_ts) < cls._CACHE_TTL:
             return cls._cache
         try:
-            async with _session() as s:
+            async with make_session() as s:
                 async with s.get(cls._URL, headers={"Accept": "application/json"}) as r:
                     if r.status != 200:
                         logger.warning(f"CoinGecko top250 status: {r.status}")

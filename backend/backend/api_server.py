@@ -13,10 +13,12 @@ import json
 import logging
 from datetime import datetime
 
+import aiohttp
 from aiohttp import web
 
 import os
 
+from core.http import USER_AGENT, make_session
 from .api_handlers import BankUzHandler, CBUHandler, CryptoHandler, MetalsHandler, CryptoTopHandler
 
 logger = logging.getLogger(__name__)
@@ -150,10 +152,10 @@ async def handle_p2p(request: web.Request) -> web.Response:
         }
         headers = {
             "Content-Type": "application/json",
-            "User-Agent": _UA,
+            "User-Agent": USER_AGENT,
             "Referer": "https://p2p.binance.com/",
         }
-        async with _session() as s:
+        async with make_session() as s:
             async with s.post(
                 "https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search",
                 json=payload, headers=headers,
@@ -217,6 +219,36 @@ def create_app() -> web.Application:
     app.router.add_post("/api/p2p",        handle_p2p)
     app.router.add_get("/api/p2p",         handle_p2p)
     return app
+
+
+def register_extra_routes(app: web.Application) -> None:
+    """Auth / user / admin / AI endpointlarini ro'yxatdan o'tkazadi.
+
+    bot.py da polling va webhook rejimlari uchun bir xil marshrutlar kerak —
+    takrorlanmasligi uchun shu yerda birlashtirilgan.
+    """
+    from .auth_handler import (
+        handle_auth_verify, handle_user_me,
+        handle_user_alerts, handle_user_portfolio,
+    )
+    from .admin_handler import (
+        handle_admin_stats, handle_admin_broadcast, handle_admin_rate,
+    )
+    from .ai_handler import handle_ai_analyze
+
+    # Auth / User routes
+    app.router.add_post("/api/auth/verify",          handle_auth_verify)
+    app.router.add_get ("/api/user/me",              handle_user_me)
+    app.router.add_route("*", "/api/user/alerts",    handle_user_alerts)
+    app.router.add_route("*", "/api/user/portfolio", handle_user_portfolio)
+
+    # Admin routes
+    app.router.add_get ("/api/admin/stats",          handle_admin_stats)
+    app.router.add_post("/api/admin/broadcast",      handle_admin_broadcast)
+    app.router.add_post("/api/admin/rate",           handle_admin_rate)
+
+    # AI route
+    app.router.add_get("/api/ai/analyze",            handle_ai_analyze)
 
 
 async def start_api_server() -> web.AppRunner:

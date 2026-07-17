@@ -10,35 +10,22 @@ import os
 from aiohttp import web
 
 from core.database import db
+from .firebase_auth import decode_token, get_bearer_token
 
 logger = logging.getLogger(__name__)
 
 ADMIN_EMAILS = {e.strip() for e in os.getenv("ADMIN_EMAILS", "sherzodbekhome@gmail.com").split(",")}
 
-try:
-    import firebase_admin
-    from firebase_admin import auth as fb_auth
-    _FB_AVAILABLE = True
-except ImportError:
-    _FB_AVAILABLE = False
-
 
 async def _verify_admin(request: web.Request):
     """Bearer tokenni tekshirib, admin email ekanini tasdiqlaydi. None qaytarsa — xato."""
-    auth = request.headers.get("Authorization", "")
-    if not auth.startswith("Bearer "):
+    token = get_bearer_token(request)
+    if not token:
         return None
-    token = auth[7:]
-    if not _FB_AVAILABLE or not firebase_admin._apps:
+    decoded = decode_token(token)
+    if not decoded or decoded.get("email", "") not in ADMIN_EMAILS:
         return None
-    try:
-        decoded = fb_auth.verify_id_token(token)
-        email = decoded.get("email", "")
-        if email not in ADMIN_EMAILS:
-            return None
-        return decoded
-    except Exception:
-        return None
+    return decoded
 
 
 async def handle_admin_stats(request: web.Request) -> web.Response:

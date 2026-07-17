@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import Optional, Dict
 
 from core.config import GEMINI_API_KEYS
+from core.formatting import num
 
 logger = logging.getLogger(__name__)
 
@@ -127,13 +128,14 @@ class AIAnalyzer:
                 best_buy_name  = buying[0][0]
                 best_sell_name = selling[0][0]
                 spread = selling[0][1] - buying[0][1]
+                avg_top5 = sum(r for _, r in buying[:5]) // 5
                 bank_block = (
-                    f"Eng yuqori xarid narxi:  {best_buy_name} — {buying[0][1]:,} so'm\n"
-                    f"Eng qulay sotish narxi: {best_sell_name} — {selling[0][1]:,} so'm\n"
-                    f"Bank spread (farq): {spread:,} so'm\n"
+                    f"Eng yuqori xarid narxi:  {best_buy_name} — {num(buying[0][1])} so'm\n"
+                    f"Eng qulay sotish narxi: {best_sell_name} — {num(selling[0][1])} so'm\n"
+                    f"Bank spread (farq): {num(spread)} so'm\n"
                     f"O'rtacha bozor: top-5 xarid o'rtacha "
-                    f"{sum(r for _, r in buying[:5]) // 5:,} so'm"
-                ).replace(",", " ")
+                    f"{num(avg_top5)} so'm"
+                )
 
         prompt = f"""{_PERSONA}
 

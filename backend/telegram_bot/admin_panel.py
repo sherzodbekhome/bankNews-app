@@ -13,6 +13,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.filters import Command
 
 from core.database import db
+from core.formatting import num
 
 # ── Holatlar (FSM) ─────────────────────────────────────────────────
 class BankRateStates(StatesGroup):
@@ -40,7 +41,7 @@ def register_admin_handlers(dp, bot, ADMIN_ID: int, CHANNELS: list):
         for cur, emoji in [('USD','🇺🇸'), ('EUR','🇪🇺'), ('RUB','🇷🇺')]:
             r = rates.get(cur, {})
             if r.get('buy'):
-                text += f"{emoji} <b>{cur}:</b> {r['buy']:,} / {r['sell']:,} so'm\n".replace(",", " ")
+                text += f"{emoji} <b>{cur}:</b> {num(r['buy'])} / {num(r['sell'])} so'm\n"
                 text += f"   <i>Yangilangan: {r.get('updated','?')}</i>\n"
             else:
                 text += f"{emoji} <b>{cur}:</b> <i>Kiritilmagan</i>\n"
@@ -147,9 +148,9 @@ def register_admin_handlers(dp, bot, ADMIN_ID: int, CHANNELS: list):
         await message.answer(
             f"✅ <b>{cur} kursi saqlandi!</b>\n\n"
             f"{flags.get(cur,'')} {cur}:\n"
-            f"  Sotib olish: <b>{buy:,.0f}</b> so'm\n"
-            f"  Sotish: <b>{sell:,.0f}</b> so'm\n"
-            f"  Farq: <b>{sell-buy:,.0f}</b> so'm".replace(",", " "),
+            f"  Sotib olish: <b>{num(buy)}</b> so'm\n"
+            f"  Sotish: <b>{num(sell)}</b> so'm\n"
+            f"  Farq: <b>{num(sell - buy)}</b> so'm",
             parse_mode="HTML",
             reply_markup=keyboard
         )
@@ -172,9 +173,9 @@ def register_admin_handlers(dp, bot, ADMIN_ID: int, CHANNELS: list):
                 has_data = True
                 lines.append((
                     f"{flags[cur]} <b>{cur}:</b>\n"
-                    f"  ↗️ Sotib olish: <b>{int(r['buy']):,}</b> so'm\n"
-                    f"  ↘️ Sotish: <b>{int(r['sell']):,}</b> so'm"
-                ).replace(",", " "))
+                    f"  ↗️ Sotib olish: <b>{num(int(r['buy']))}</b> so'm\n"
+                    f"  ↘️ Sotish: <b>{num(int(r['sell']))}</b> so'm"
+                ))
 
         if not has_data:
             await callback.answer("❌ Hech qanday kurs kiritilmagan!", show_alert=True)
@@ -231,8 +232,8 @@ def register_admin_handlers(dp, bot, ADMIN_ID: int, CHANNELS: list):
                 buy  = round(base * bk)
                 sell = round(base * sk)
                 await db.save_bank_rate(cur, buy, sell, now)
-                text += (f"{flags[cur]} <b>{cur}:</b> {base:,.2f} so'm (CBU)\n"
-                         f"  Bank: {buy:,} / {sell:,} so'm\n").replace(",", " ")
+                text += (f"{flags[cur]} <b>{cur}:</b> {num(base, 2)} so'm (CBU)\n"
+                         f"  Bank: {num(buy)} / {num(sell)} so'm\n")
 
             text += f"\n<i>Manba: cbu.uz • {now}</i>"
 
