@@ -27,25 +27,7 @@
         "spread": 80
       },
       {
-        "name": "MKBank",
-        "buy": 11800,
-        "sell": 11870,
-        "spread": 70
-      },
-      {
-        "name": "Trastbank",
-        "buy": 11800,
-        "sell": 11890,
-        "spread": 90
-      },
-      {
         "name": "BRB",
-        "buy": 11800,
-        "sell": 11890,
-        "spread": 90
-      },
-      {
-        "name": "O‘zbekiston Milliy banki",
         "buy": 11800,
         "sell": 11890,
         "spread": 90
@@ -63,10 +45,28 @@
         "spread": 70
       },
       {
+        "name": "Trastbank",
+        "buy": 11800,
+        "sell": 11890,
+        "spread": 90
+      },
+      {
         "name": "Hayot Bank",
         "buy": 11800,
         "sell": 11880,
         "spread": 80
+      },
+      {
+        "name": "MKBank",
+        "buy": 11800,
+        "sell": 11870,
+        "spread": 70
+      },
+      {
+        "name": "O‘zbekiston Milliy banki",
+        "buy": 11800,
+        "sell": 11890,
+        "spread": 90
       },
       {
         "name": "Openbank",
@@ -81,19 +81,7 @@
         "spread": 100
       },
       {
-        "name": "Asia Alliance Bank",
-        "buy": 11790,
-        "sell": 11850,
-        "spread": 60
-      },
-      {
         "name": "Ipak Yuli Bank",
-        "buy": 11790,
-        "sell": 11890,
-        "spread": 100
-      },
-      {
-        "name": "Turon bank",
         "buy": 11790,
         "sell": 11890,
         "spread": 100
@@ -105,15 +93,21 @@
         "spread": 100
       },
       {
-        "name": "Ziraat Bank",
+        "name": "Asia Alliance Bank",
+        "buy": 11790,
+        "sell": 11850,
+        "spread": 60
+      },
+      {
+        "name": "Turon bank",
         "buy": 11790,
         "sell": 11890,
         "spread": 100
       },
       {
-        "name": "Garant bank",
-        "buy": 11785,
-        "sell": 11885,
+        "name": "Ziraat Bank",
+        "buy": 11790,
+        "sell": 11890,
         "spread": 100
       },
       {
@@ -123,28 +117,16 @@
         "spread": 105
       },
       {
+        "name": "Garant bank",
+        "buy": 11785,
+        "sell": 11885,
+        "spread": 100
+      },
+      {
         "name": "Kapitalbank",
         "buy": 11785,
         "sell": 11865,
         "spread": 80
-      },
-      {
-        "name": "Aloqabank",
-        "buy": 11780,
-        "sell": 11870,
-        "spread": 90
-      },
-      {
-        "name": "Octobank",
-        "buy": 11780,
-        "sell": 11880,
-        "spread": 100
-      },
-      {
-        "name": "Poytaxt bank",
-        "buy": 11780,
-        "sell": 11890,
-        "spread": 110
       },
       {
         "name": "Anorbank",
@@ -153,13 +135,31 @@
         "spread": 65
       },
       {
-        "name": "Ipoteka bank",
+        "name": "Octobank",
+        "buy": 11780,
+        "sell": 11880,
+        "spread": 100
+      },
+      {
+        "name": "Aloqabank",
+        "buy": 11780,
+        "sell": 11870,
+        "spread": 90
+      },
+      {
+        "name": "Poytaxt bank",
+        "buy": 11780,
+        "sell": 11890,
+        "spread": 110
+      },
+      {
+        "name": "KDB Bank Uzbekiston",
         "buy": 11775,
         "sell": 11900,
         "spread": 125
       },
       {
-        "name": "KDB Bank Uzbekiston",
+        "name": "Ipoteka bank",
         "buy": 11775,
         "sell": 11900,
         "spread": 125
@@ -197,16 +197,16 @@
         "spread": 54
       },
       {
-        "name": "Trastbank",
-        "buy": 90,
-        "sell": 150,
-        "spread": 60
-      },
-      {
         "name": "Infinbank",
         "buy": 90,
         "sell": 145,
         "spread": 55
+      },
+      {
+        "name": "Trastbank",
+        "buy": 90,
+        "sell": 150,
+        "spread": 60
       },
       {
         "name": "Ipak Yuli Bank",
@@ -221,13 +221,13 @@
         "spread": 60
       },
       {
-        "name": "Orient Finans Bank",
+        "name": "Octobank",
         "buy": 80,
         "sell": 141,
         "spread": 61
       },
       {
-        "name": "Octobank",
+        "name": "Orient Finans Bank",
         "buy": 80,
         "sell": 141,
         "spread": 61
@@ -239,16 +239,16 @@
         "spread": 70
       },
       {
-        "name": "Poytaxt bank",
-        "buy": 50,
-        "sell": 170,
-        "spread": 120
-      },
-      {
         "name": "BRB",
         "buy": 50,
         "sell": 140,
         "spread": 90
+      },
+      {
+        "name": "Poytaxt bank",
+        "buy": 50,
+        "sell": 170,
+        "spread": 120
       },
       {
         "name": "Garant bank",
@@ -301,16 +301,16 @@
         "spread": 500
       },
       {
-        "name": "Octobank",
-        "buy": 13310,
-        "sell": 13840,
-        "spread": 530
-      },
-      {
         "name": "Anorbank",
         "buy": 13310,
         "sell": 13770,
         "spread": 460
+      },
+      {
+        "name": "Octobank",
+        "buy": 13310,
+        "sell": 13840,
+        "spread": 530
       },
       {
         "name": "O‘zsanoatqurilishbank",
@@ -385,22 +385,16 @@
         "spread": 1050
       },
       {
-        "name": "Poytaxt bank",
-        "buy": 13000,
-        "sell": 13900,
-        "spread": 900
-      },
-      {
-        "name": "MKBank",
+        "name": "Infinbank",
         "buy": 13000,
         "sell": 14000,
         "spread": 1000
       },
       {
-        "name": "Turon bank",
+        "name": "Poytaxt bank",
         "buy": 13000,
-        "sell": 14500,
-        "spread": 1500
+        "sell": 13900,
+        "spread": 900
       },
       {
         "name": "Universal bank",
@@ -409,7 +403,13 @@
         "spread": 2000
       },
       {
-        "name": "Infinbank",
+        "name": "Turon bank",
+        "buy": 13000,
+        "sell": 14500,
+        "spread": 1500
+      },
+      {
+        "name": "MKBank",
         "buy": 13000,
         "sell": 14000,
         "spread": 1000
@@ -434,7 +434,7 @@
     "RUB": 140.42
   },
   "source": "bank.uz",
-  "updated": "2026-09-19T13:33:22Z",
+  "updated": "2026-09-19T18:16:21Z",
   "history": [
     {
       "date": "2026-08-21",
