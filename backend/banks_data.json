@@ -3,16 +3,34 @@
   "data": {
     "USD": [
       {
-        "name": "Asia Alliance Bank",
-        "buy": 11745,
-        "sell": 11805,
-        "spread": 60
+        "name": "Infinbank",
+        "buy": 11750,
+        "sell": 11830,
+        "spread": 80
       },
       {
         "name": "Kapitalbank",
-        "buy": 11745,
-        "sell": 11815,
+        "buy": 11750,
+        "sell": 11820,
         "spread": 70
+      },
+      {
+        "name": "BRB",
+        "buy": 11745,
+        "sell": 11830,
+        "spread": 85
+      },
+      {
+        "name": "Hayot Bank",
+        "buy": 11740,
+        "sell": 11810,
+        "spread": 70
+      },
+      {
+        "name": "Universal bank",
+        "buy": 11740,
+        "sell": 11830,
+        "spread": 90
       },
       {
         "name": "O‘zbekiston Milliy banki",
@@ -21,28 +39,28 @@
         "spread": 90
       },
       {
-        "name": "Hayot Bank",
+        "name": "Asia Alliance Bank",
         "buy": 11740,
-        "sell": 11830,
-        "spread": 90
-      },
-      {
-        "name": "BRB",
-        "buy": 11735,
-        "sell": 11820,
-        "spread": 85
+        "sell": 11800,
+        "spread": 60
       },
       {
         "name": "Openbank",
-        "buy": 11735,
-        "sell": 11815,
+        "buy": 11740,
+        "sell": 11820,
         "spread": 80
       },
       {
-        "name": "Universal bank",
+        "name": "Poytaxt bank",
         "buy": 11730,
-        "sell": 11830,
-        "spread": 100
+        "sell": 11820,
+        "spread": 90
+      },
+      {
+        "name": "Agrobank",
+        "buy": 11730,
+        "sell": 11820,
+        "spread": 90
       },
       {
         "name": "Ipak Yuli Bank",
@@ -51,25 +69,43 @@
         "spread": 90
       },
       {
-        "name": "Agrobank",
+        "name": "Trastbank",
+        "buy": 11730,
+        "sell": 11830,
+        "spread": 100
+      },
+      {
+        "name": "Garant bank",
         "buy": 11725,
-        "sell": 11815,
-        "spread": 90
+        "sell": 11825,
+        "spread": 100
       },
       {
-        "name": "MKBank",
+        "name": "KDB Bank Uzbekiston",
         "buy": 11720,
-        "sell": 11800,
-        "spread": 80
+        "sell": 11835,
+        "spread": 115
       },
       {
-        "name": "O‘zsanoatqurilishbank",
+        "name": "Ipoteka bank",
         "buy": 11720,
         "sell": 11790,
         "spread": 70
       },
       {
-        "name": "Anorbank",
+        "name": "Orient Finans Bank",
+        "buy": 11720,
+        "sell": 11800,
+        "spread": 80
+      },
+      {
+        "name": "Turon bank",
+        "buy": 11720,
+        "sell": 11800,
+        "spread": 80
+      },
+      {
+        "name": "Aloqabank",
         "buy": 11720,
         "sell": 11790,
         "spread": 70
@@ -81,76 +117,46 @@
         "spread": 110
       },
       {
-        "name": "Trastbank",
-        "buy": 11720,
-        "sell": 11830,
-        "spread": 110
-      },
-      {
-        "name": "Garant bank",
-        "buy": 11720,
-        "sell": 11820,
-        "spread": 100
-      },
-      {
-        "name": "Tenge Bank",
-        "buy": 11720,
-        "sell": 11780,
-        "spread": 60
-      },
-      {
-        "name": "Turon bank",
-        "buy": 11720,
-        "sell": 11800,
-        "spread": 80
-      },
-      {
-        "name": "Aloqabank",
-        "buy": 11720,
-        "sell": 11780,
-        "spread": 60
-      },
-      {
-        "name": "Orient Finans Bank",
-        "buy": 11720,
-        "sell": 11800,
-        "spread": 80
-      },
-      {
         "name": "Ziraat Bank",
         "buy": 11720,
         "sell": 11830,
         "spread": 110
       },
       {
-        "name": "Infinbank",
-        "buy": 11720,
-        "sell": 11830,
-        "spread": 110
-      },
-      {
-        "name": "Ipoteka bank",
-        "buy": 11715,
-        "sell": 11790,
-        "spread": 75
-      },
-      {
-        "name": "KDB Bank Uzbekiston",
-        "buy": 11715,
-        "sell": 11830,
-        "spread": 115
-      },
-      {
         "name": "Octobank",
-        "buy": 11715,
+        "buy": 11720,
         "sell": 11780,
-        "spread": 65
+        "spread": 60
       },
       {
-        "name": "Poytaxt bank",
-        "buy": 11715,
-        "sell": 11780,
-        "spread": 65
+        "name": "Asakabank",
+        "buy": 11720,
+        "sell": 11800,
+        "spread": 80
+      },
+      {
+        "name": "MKBank",
+        "buy": 11720,
+        "sell": 11800,
+        "spread": 80
+      },
+      {
+        "name": "Tenge Bank",
+        "buy": 11720,
+        "sell": 11790,
+        "spread": 70
+      },
+      {
+        "name": "O‘zsanoatqurilishbank",
+        "buy": 11720,
+        "sell": 11790,
+        "spread": 70
+      },
+      {
+        "name": "Anorbank",
+        "buy": 11720,
+        "sell": 11810,
+        "spread": 90
       }
     ],
     "RUB": [
@@ -162,9 +168,9 @@
       },
       {
         "name": "Kapitalbank",
-        "buy": 112,
-        "sell": 137,
-        "spread": 25
+        "buy": 111,
+        "sell": 135,
+        "spread": 24
       },
       {
         "name": "O‘zbekiston Milliy banki",
@@ -179,28 +185,34 @@
         "spread": 42
       },
       {
-        "name": "Tenge Bank",
-        "buy": 100,
-        "sell": 145,
-        "spread": 45
-      },
-      {
         "name": "Aloqabank",
         "buy": 95,
         "sell": 180,
         "spread": 85
       },
       {
-        "name": "Trastbank",
-        "buy": 90,
-        "sell": 149,
-        "spread": 59
-      },
-      {
         "name": "Infinbank",
         "buy": 90,
         "sell": 145,
         "spread": 55
+      },
+      {
+        "name": "Tenge Bank",
+        "buy": 90,
+        "sell": 144,
+        "spread": 54
+      },
+      {
+        "name": "Trastbank",
+        "buy": 90,
+        "sell": 146,
+        "spread": 56
+      },
+      {
+        "name": "Octobank",
+        "buy": 80,
+        "sell": 140,
+        "spread": 60
       },
       {
         "name": "Turon bank",
@@ -211,20 +223,20 @@
       {
         "name": "Ipak Yuli Bank",
         "buy": 80,
-        "sell": 143,
-        "spread": 63
-      },
-      {
-        "name": "Octobank",
-        "buy": 80,
-        "sell": 143,
-        "spread": 63
+        "sell": 142,
+        "spread": 62
       },
       {
         "name": "Hayot Bank",
         "buy": 70,
-        "sell": 142,
-        "spread": 72
+        "sell": 139,
+        "spread": 69
+      },
+      {
+        "name": "Garant bank",
+        "buy": 50,
+        "sell": 180,
+        "spread": 130
       },
       {
         "name": "BRB",
@@ -239,16 +251,16 @@
         "spread": 100
       },
       {
-        "name": "Garant bank",
-        "buy": 50,
-        "sell": 180,
-        "spread": 130
-      },
-      {
         "name": "Poytaxt bank",
         "buy": 50,
         "sell": 170,
         "spread": 120
+      },
+      {
+        "name": "Asakabank",
+        "buy": 0,
+        "sell": 136,
+        "spread": 0
       },
       {
         "name": "O‘zsanoatqurilishbank",
@@ -259,7 +271,7 @@
       {
         "name": "Anorbank",
         "buy": 0,
-        "sell": 146,
+        "sell": 143,
         "spread": 0
       }
     ],
@@ -289,22 +301,10 @@
         "spread": 295
       },
       {
-        "name": "MKBank",
-        "buy": 13000,
-        "sell": 14000,
-        "spread": 1000
-      },
-      {
         "name": "Universal bank",
         "buy": 13000,
         "sell": 15000,
         "spread": 2000
-      },
-      {
-        "name": "Xalq Banki",
-        "buy": 13000,
-        "sell": 13350,
-        "spread": 350
       },
       {
         "name": "Aloqabank",
@@ -313,28 +313,16 @@
         "spread": 1000
       },
       {
-        "name": "Anorbank",
-        "buy": 12970,
-        "sell": 13360,
-        "spread": 390
-      },
-      {
         "name": "Octobank",
-        "buy": 12970,
-        "sell": 13480,
-        "spread": 510
+        "buy": 12940,
+        "sell": 13460,
+        "spread": 520
       },
       {
-        "name": "O‘zsanoatqurilishbank",
-        "buy": 12900,
-        "sell": 13500,
-        "spread": 600
-      },
-      {
-        "name": "Orient Finans Bank",
-        "buy": 12900,
-        "sell": 14000,
-        "spread": 1100
+        "name": "Anorbank",
+        "buy": 12940,
+        "sell": 13340,
+        "spread": 400
       },
       {
         "name": "KDB Bank Uzbekiston",
@@ -343,16 +331,28 @@
         "spread": 800
       },
       {
-        "name": "Garant bank",
-        "buy": 12800,
-        "sell": 15000,
-        "spread": 2200
+        "name": "Orient Finans Bank",
+        "buy": 12900,
+        "sell": 14000,
+        "spread": 1100
+      },
+      {
+        "name": "Xalq Banki",
+        "buy": 12900,
+        "sell": 13300,
+        "spread": 400
+      },
+      {
+        "name": "O‘zsanoatqurilishbank",
+        "buy": 12900,
+        "sell": 13500,
+        "spread": 600
       },
       {
         "name": "Hayot Bank",
         "buy": 12800,
-        "sell": 13300,
-        "spread": 500
+        "sell": 13220,
+        "spread": 420
       },
       {
         "name": "Poytaxt bank",
@@ -361,46 +361,64 @@
         "spread": 750
       },
       {
-        "name": "Kapitalbank",
-        "buy": 12760,
-        "sell": 13340,
-        "spread": 580
+        "name": "Garant bank",
+        "buy": 12800,
+        "sell": 15000,
+        "spread": 2200
       },
       {
-        "name": "Trastbank",
-        "buy": 12750,
-        "sell": 13300,
-        "spread": 550
+        "name": "Asakabank",
+        "buy": 12800,
+        "sell": 13850,
+        "spread": 1050
       },
       {
         "name": "Tenge Bank",
-        "buy": 12720,
-        "sell": 13300,
+        "buy": 12800,
+        "sell": 13400,
+        "spread": 600
+      },
+      {
+        "name": "Kapitalbank",
+        "buy": 12780,
+        "sell": 13360,
         "spread": 580
       },
       {
+        "name": "MKBank",
+        "buy": 12700,
+        "sell": 13700,
+        "spread": 1000
+      },
+      {
+        "name": "Trastbank",
+        "buy": 12700,
+        "sell": 13250,
+        "spread": 550
+      },
+      {
         "name": "Ipak Yuli Bank",
-        "buy": 12680,
-        "sell": 13320,
+        "buy": 12660,
+        "sell": 13300,
         "spread": 640
       },
       {
         "name": "Ipoteka bank",
-        "buy": 12600,
+        "buy": 12550,
         "sell": 13650,
-        "spread": 1050
-      },
-      {
-        "name": "Turon bank",
-        "buy": 12500,
-        "sell": 14500,
-        "spread": 2000
+        "spread": 1100
       },
       {
         "name": "Infinbank",
         "buy": 12500,
         "sell": 14000,
         "spread": 1500
+      },
+      {
+        "name": "Turon bank",
+        "buy": 12500,
+        "sell": 14500,
+        "spread": 2000
       }
     ]
   },
@@ -410,14 +428,8 @@
     "RUB": 138.35
   },
   "source": "bank.uz",
-  "updated": "2026-10-05T22:14:26Z",
+  "updated": "2026-10-06T10:52:48Z",
   "history": [
-    {
-      "date": "2026-09-06",
-      "USD": 11795.0,
-      "EUR": 13698.71,
-      "RUB": 135.8
-    },
     {
       "date": "2026-09-07",
       "USD": 11785.3,
@@ -588,6 +600,12 @@
     },
     {
       "date": "2026-10-05",
+      "USD": 11778.45,
+      "EUR": 13198.93,
+      "RUB": 138.35
+    },
+    {
+      "date": "2026-10-06",
       "USD": 11778.45,
       "EUR": 13198.93,
       "RUB": 138.35
